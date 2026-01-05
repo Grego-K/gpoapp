@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(AbstractEntity.class)
+@EntityListeners(AuditingEntityListener.class)
 public abstract class AbstractEntity {
 
     @CreatedDate

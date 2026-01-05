@@ -1,4 +1,5 @@
 package gr.aueb.cf.gpoapp.model;
+import gr.aueb.cf.gpoapp.model.static_data.Region;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +24,7 @@ public class User extends AbstractEntity{
     @Column(unique = true)
     private String uuid;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 9)
     private String vat;
 
     @Column(nullable = false)
@@ -32,8 +33,15 @@ public class User extends AbstractEntity{
     @Column(nullable = false)
     private String lastname;
 
-    @Column(nullable = false)
+    @Column(length = 10)
+    private String phoneNumber;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id")
+    private Region region;
 
     @PrePersist
     public void initializeUUID() {

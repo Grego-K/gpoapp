@@ -20,5 +20,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByStatus(OrderStatus status);
 
     // Παραγγελίες ανα χρονικά διαστήματα
-    List<Order> findByOrderDateBetween(LocalDateTime start, LocalDateTime end);
+    // Χρησιμοποιούμε το createdAt που υπάρχει στην AbstractEntity
+    List<Order> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }

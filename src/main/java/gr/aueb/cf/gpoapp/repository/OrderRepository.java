@@ -1,4 +1,4 @@
 package gr.aueb.cf.gpoapp.repository;
 
-public class OrderRepository {
+public interface OrderRepository extends JpaRepository<Order, Long> {
 }

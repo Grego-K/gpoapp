@@ -1,4 +1,4 @@
 package gr.aueb.cf.gpoapp.repository;
 
-public class RegionRepository {
+public interface RegionRepository extends JpaRepository<Region, Long> {
 }

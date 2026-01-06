@@ -1,4 +1,4 @@
 package gr.aueb.cf.gpoapp.repository;
 
-public class UserRepository {
+public interface UserRepository extends JpaRepository<User, Long> {
 }

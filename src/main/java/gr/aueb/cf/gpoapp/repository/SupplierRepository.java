@@ -1,4 +1,4 @@
 package gr.aueb.cf.gpoapp.repository;
 
-public class SupplierRepository {
+public interface SupplierRepository extends JpaRepository<Supplier, Long> {
 }

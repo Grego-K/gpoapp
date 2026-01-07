@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaGPO - Εγγραφή</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/landing.css}">
+</head>
+
+<body class="min-h-screen flex flex-col bg-gradient-to-br from-white via-gray-50 to-blue-50">
+
+<!-- Header -->
+<header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+        <!-- Logo -->
+        <div class="flex items-center">
+            <svg class="w-48 h-12" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(10, 10)">
+                    <rect x="10" y="5" width="6" height="20" fill="url(#logoGradient)" rx="1"/>
+                    <rect x="5" y="10" width="16" height="6" fill="url(#logoGradient)" rx="1"/>
+                    <circle cx="13" cy="13" r="10" fill="none" stroke="url(#logoGradient)" stroke-width="2"/>
+                </g>
+                <text x="45" y="28" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#1e40af">
+                    Pharma<tspan fill="#0891b2">GPO</tspan>
+                </text>
+                <defs>
+                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#1e40af"/>
+                        <stop offset="100%" style="stop-color:#0891b2"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex items-center gap-6">
+            <a th:href="@{/login}" class="text-gray-700 hover:text-blue-600 font-medium">
+                Login
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Main -->
+<main class="flex-1 flex items-center justify-center px-6 py-16">
+
+    <div class="w-full max-w-3xl benefit-card">
+
+        <!-- Title -->
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <span class="gradient-text-blue-cyan">Εγγραφή στο Pharma</span>
+                <span class="gradient-text-cyan-blue">GPO</span>
+            </h1>
+            <p class="text-gray-600">
+                Δημιουργήστε λογαριασμό και αποκτήστε πρόσβαση σε προνομιακές τιμές
+            </p>
+        </div>
+
+        <!-- Form -->
+        <form th:action="@{/register}" method="post" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Email -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" name="email" required
+                       class="w-full rounded-lg border-gray-300 focus:border-cyan-500 focus:ring-cyan-500"/>
+            </div>
+
+            <!-- Username -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <input type="text" name="username" required
+                       class="w-full rounded-lg border-gray-300 focus:border-cyan-500 focus:ring-cyan-500"/>
+            </div>
+
+            <!-- Firstname -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Όνομα</label>
+                <input type="text" name="firstname" required
+                       class="w-full rounded-lg border-gray-300 focus:border-cyan-500 focus:ring-cyan-500"/>
+            </div>
+
+            <!-- Lastname -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Επώνυμο</label>
+                <input type="text" name="lastname" required
+                       class="w-full rounded-lg border-gray-300 focus:border-cyan-500 focus:ring-cyan-500"/>
+            </div>
+
+            <!-- Password -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Κωδικός</label>
+                <input type="password" name="password" required
+                       class="w-full rounded-lg border-gray-300 focus:border-cyan-500 focus:ring-cyan-500"/>
+            </div>
+
+            <!-- Phone -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Τηλέφωνο</label>
+                <input type="tel" name="phonenumber"
+                       class="w-full rounded-lg border-gray-300 focus:border-cyan-500 focus:ring-cyan-500"/>
+            </div>
+
+            <!-- VAT -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">ΑΦΜ</label>
+                <input type="text" name="vat" required
+                       class="w-full rounded-lg border-gray-300 focus:border-cyan-500 focus:ring-cyan-500"/>
+            </div>
+
+            <!-- Region -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Περιοχή</label>
+                <select name="region" required
+                        class="w-full rounded-lg border-gray-300 focus:border-cyan-500 focus:ring-cyan-500">
+                    <option value="">Επιλέξτε περιοχή</option>
+                    <option value="attica">Αττική</option>
+                    <option value="thessaloniki">Θεσσαλονίκη</option>
+                    <option value="peloponnese">Πελοπόννησος</option>
+                    <option value="crete">Κρήτη</option>
+                    <option value="other">Άλλη</option>
+                </select>
+            </div>
+
+            <!-- Submit -->
+            <div class="md:col-span-2 text-center mt-6">
+                <button type="submit"
+                        class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-10 py-3 rounded-xl font-semibold
+                               hover:from-blue-700 hover:to-cyan-700 transition-all shadow-lg hover:shadow-xl">
+                    Δημιουργία Λογαριασμού
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-white border-t border-gray-200">
+    <div class="max-w-7xl mx-auto px-6 py-6 text-center">
+        <p class="text-gray-600">PharmaGPO.gr 2026</p>
+    </div>
+</footer>
+
+</body>
+</html>

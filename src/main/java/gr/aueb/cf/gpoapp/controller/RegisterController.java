@@ -19,25 +19,30 @@ public class RegisterController {
 
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
+        // Συνδέουμε το "userDTO" της HTML με ένα νέο UserInsertDTO αντικείμενο
         model.addAttribute("userDTO", new UserInsertDTO());
+        // Γεμίζουμε τη λίστα των περιοχών από τη βάση
         model.addAttribute("regions", regionRepository.findAllByOrderByNameAsc());
         return "register";
     }
 
     @PostMapping("/register")
-    public String registerUser(@Valid @ModelAttribute("userDTO") UserInsertDTO dto,
+    public String registerUser(@Valid @ModelAttribute("userDTO") UserInsertDTO userInsertDTO,
                                BindingResult bindingResult,
                                Model model) {
 
-        // Έλεγχος Validation
+        // Έλεγχος για Validation Errors
         if (bindingResult.hasErrors()) {
             model.addAttribute("regions", regionRepository.findAllByOrderByNameAsc());
             return "register";
         }
 
-        // Logs
-        System.out.println("Επιτυχές Validation για: " + dto.getEmail());
+        // Logging για επιβεβαίωση
+        System.out.println("Προσπάθεια εγγραφής: " + userInsertDTO.getEmail());
+        System.out.println("Username: " + userInsertDTO.getUsername());
+        System.out.println("Region ID: " + userInsertDTO.getRegion());
 
+        // Ανακατεύθυνση στο login
         return "redirect:/login";
     }
 }

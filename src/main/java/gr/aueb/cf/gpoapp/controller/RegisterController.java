@@ -33,6 +33,7 @@ public class RegisterController {
 
         // Έλεγχος για Validation Errors
         if (bindingResult.hasErrors()) {
+            // To model εχει scope request - αν έρθει αλλο request χάνεται το region
             model.addAttribute("regions", regionRepository.findAllByOrderByNameAsc());
             return "register";
         }

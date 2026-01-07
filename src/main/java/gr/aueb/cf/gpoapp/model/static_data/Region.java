@@ -15,26 +15,18 @@ import java.util.Set;
 @Getter
 @Setter
 @Table(name = "regions")
+@ToString(exclude = "users") // Προσθήκη για debugging
 public class Region {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false) // Διασφάλιση ακεραιότητας
     private String name;
 
     @Getter(AccessLevel.PRIVATE)
     @OneToMany(mappedBy = "region", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>();
-
-    public Set<User> getAllUsers() {
-        return Collections.unmodifiableSet(users);
-    }
-
-    public void addUser(User user) {
-        if (users == null) users = new HashSet<>();
-        users.add(user);
-        user.setRegion(this);
-    }
 
 }

@@ -1,4 +1,5 @@
 package gr.aueb.cf.gpoapp.model;
+
 import gr.aueb.cf.gpoapp.model.static_data.Region;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,14 +9,13 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
 @Table(name = "users")
-public class User extends AbstractEntity{
+public class User extends AbstractEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +23,12 @@ public class User extends AbstractEntity{
 
     @Column(unique = true)
     private String uuid;
+
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
 
     @Column(unique = true, nullable = false, length = 9)
     private String vat;
@@ -47,5 +53,4 @@ public class User extends AbstractEntity{
     public void initializeUUID() {
         if (uuid == null) uuid = UUID.randomUUID().toString();
     }
-
 }

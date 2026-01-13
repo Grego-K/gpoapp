@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import gr.aueb.cf.gpoapp.model.enums.Role;
 
 @Slf4j // log
 @Service
@@ -45,6 +46,9 @@ public class UserService implements IUserService {
 
             // Mapping DTO -> Entity
             User user = userMapper.mapToUserEntity(userInsertDTO);
+
+            // Αποδίδουμε αυτόματα τον ρόλο PHARMACIST
+            user.setRole(Role.PHARMACIST);
 
             // Εύρεση και σύνδεση Region
             Region region = regionRepository.findById(userInsertDTO.getRegion())

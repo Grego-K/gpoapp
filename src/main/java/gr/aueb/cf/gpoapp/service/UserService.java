@@ -10,11 +10,12 @@ import gr.aueb.cf.gpoapp.repository.RegionRepository;
 import gr.aueb.cf.gpoapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import gr.aueb.cf.gpoapp.model.enums.Role;
 
-@Slf4j // log
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService implements IUserService {
@@ -22,6 +23,7 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final RegionRepository regionRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder; // Inject για την κρυπτογράφηση
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -47,7 +49,10 @@ public class UserService implements IUserService {
             // Mapping DTO -> Entity
             User user = userMapper.mapToUserEntity(userInsertDTO);
 
-            // Αποδίδουμε αυτόματα τον ρόλο PHARMACIST
+            // Κρυπτογράφηση κωδικού πριν την αποθήκευση
+            user.setPassword(passwordEncoder.encode(userInsertDTO.getPassword()));
+
+            // Ατόματη απόδοση ρόλου PHARMACIST
             user.setRole(Role.PHARMACIST);
 
             // Εύρεση και σύνδεση Region
@@ -58,22 +63,16 @@ public class UserService implements IUserService {
             // Αποθήκευση
             User savedUser = userRepository.save(user);
 
-            // Logging για επιτυχή εγγραφή ( structured logging )
-            log.info("User with username={} and vat={} saved.", userInsertDTO.getUsername(), userInsertDTO.getVat());
+            // Logging επιτυχίας
+            log.info("User with username={} and vat={} saved with role PHARMACIST.", userInsertDTO.getUsername(), userInsertDTO.getVat());
 
             return savedUser;
 
-        } catch (EntityAlreadyExistsException e) {
-            // Logging του σφάλματος για log analyzers ( ELK Stack κλπ )
-            log.error("Registration failed: User with vat={} already exists", userInsertDTO.getVat(), e);
-            throw e;
-
-        } catch (EntityNotFoundException e) {
-            log.error("Registration failed: Region with id={} not found", userInsertDTO.getRegion(), e);
+        } catch (EntityAlreadyExistsException | EntityNotFoundException e) {
+            log.error("Registration failed: {}", e.getMessage());
             throw e;
 
         } catch (Exception e) {
-            // Catch-all για απρόσμενα σφάλματα (database down κλπ)
             log.error("An unexpected error occurred during user registration", e);
             throw e;
         }

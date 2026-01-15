@@ -1,5 +1,6 @@
 package gr.aueb.cf.gpoapp.model;
 
+import gr.aueb.cf.gpoapp.model.static_data.Region;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,6 +35,11 @@ public class Supplier extends AbstractEntity {
 
     @Column(length = 10)
     private String phoneNumber;
+
+    // Σύνδεση με Region
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id")
+    private Region region;
 
     @PrePersist
     public void initializeUUID() {

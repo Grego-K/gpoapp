@@ -22,9 +22,13 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String redirectUrl = null;
 
-        // Έλεγχος ρόλου για το αντίστοιχο redirect
+
+        // Redirect για κάθε ρόλο στο κεντρικό του dashboard
         for (GrantedAuthority grantedAuthority : authorities) {
-            if (grantedAuthority.getAuthority().equals("PHARMACIST")) {
+            if (grantedAuthority.getAuthority().equals("ADMIN")) {
+                redirectUrl = "/admin/dashboard";
+                break;
+            } else if (grantedAuthority.getAuthority().equals("PHARMACIST")) {
                 redirectUrl = "/pharmacist/dashboard";
                 break;
             } else if (grantedAuthority.getAuthority().equals("SUPPLIER")) {
@@ -33,11 +37,12 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
             }
         }
 
-        // Αν δεν βρέθηκε, redirect την αρχική
+        // Αν δεν βρέθηκε ρόλος, redirect στην αρχική σελίδα
         if (redirectUrl == null) {
             redirectUrl = "/";
         }
 
+        // Εκτέλεση του redirect στο τελικό URL
         response.sendRedirect(request.getContextPath() + redirectUrl);
     }
 }

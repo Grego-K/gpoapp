@@ -77,13 +77,17 @@ public class AdminController {
 
         try {
             productService.saveProduct(productDTO);
+            // Προσθήκη μηνύματος επιτυχίας και καθαρισμός της φόρμας
             model.addAttribute("successMessage", "Το προϊόν '" + productDTO.getProductName() + "' αποθηκεύτηκε επιτυχώς!");
-            return "redirect:/admin/dashboard?success";
+            model.addAttribute("productDTO", new ProductDTO());
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Σφάλμα κατά την αποθήκευση του προϊόντος: " + e.getMessage());
-            model.addAttribute("categories", categoryService.findAllCategories());
-            model.addAttribute("suppliers", supplierService.findAllSuppliers());
-            return "admin/add-product";
         }
+
+        // Φορτώνουμε ξανά τις λίστες dropdown για να είναι διαθέσιμες στη σελίδα
+        model.addAttribute("categories", categoryService.findAllCategories());
+        model.addAttribute("suppliers", supplierService.findAllSuppliers());
+
+        return "admin/add-product";
     }
 }

@@ -1,67 +1,94 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="el">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPO Admin Dashboard</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .admin-container { max-width: 1000px; margin: 50px auto; padding: 20px; font-family: 'Segoe UI', sans-serif; }
-        .welcome-header { border-bottom: 2px solid #333; margin-bottom: 30px; padding-bottom: 10px; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .dashboard-card {
-            background: #fff; border: 1px solid #ddd; border-radius: 10px;
-            padding: 25px; text-align: center; transition: transform 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .dashboard-card:hover { transform: translateY(-5px); }
-        .card-icon { font-size: 40px; margin-bottom: 15px; display: block; }
-        .btn-action {
-            display: inline-block; background-color: #007bff; color: white;
-            padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 15px;
-        }
-        .btn-action:hover { background-color: #0056b3; }
-        .logout-section { margin-top: 40px; text-align: right; }
-        .btn-logout { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
-    </style>
+    <title>PharmaGPO - Στρατηγείο Διαχείρισης</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/landing.css}">
 </head>
-<body>
+<body class="min-h-screen flex flex-col bg-gradient-to-br from-white via-gray-50 to-blue-50">
 
-<div class="admin-container">
-    <div class="welcome-header">
-        <h1>Στρατηγείο Διαχείρισης GPO</h1>
-        <p>Καλωσήρθες, <strong>Διαχειριστή</strong>. Επιλέξτε μια ενέργεια για τη διαχείριση του συστήματος.</p>
-    </div>
-
-    <div class="dashboard-grid">
-        <div class="dashboard-card">
-            <span class="card-icon">📂</span>
-            <h3>Κατηγορίες</h3>
-            <p>Οργάνωση του καταλόγου σε κατηγορίες προϊόντων.</p>
-            <a th:href="@{/admin/categories/add}" class="btn-action">Προσθήκη Κατηγορίας</a>
+<header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center">
+            <svg class="w-48 h-12" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(10, 10)">
+                    <rect x="10" y="5" width="6" height="20" fill="url(#logoGradient)" rx="1"/>
+                    <rect x="5" y="10" width="16" height="6" fill="url(#logoGradient)" rx="1"/>
+                    <circle cx="13" cy="13" r="10" fill="none" stroke="url(#logoGradient)" stroke-width="2"/>
+                </g>
+                <text x="45" y="28" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#1e40af">
+                    Pharma<tspan fill="#0891b2">GPO</tspan>
+                </text>
+                <defs>
+                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#1e40af"/><stop offset="100%" style="stop-color:#0891b2"/>
+                    </linearGradient>
+                </defs>
+            </svg>
         </div>
-
-        <div class="dashboard-card">
-            <span class="card-icon">📦</span>
-            <h3>Προϊόντα</h3>
-            <p>Εισαγωγή προϊόντων και καθορισμός τιμών GPO.</p>
-            <a th:href="@{/admin/products/add}" class="btn-action">Προσθήκη Προϊόντος</a>
-        </div>
-
-        <div class="dashboard-card" style="opacity: 0.7;">
-            <span class="card-icon">🚛</span>
-            <h3>Προμηθευτές</h3>
-            <p>Επισκόπηση συνεργαζόμενων εταιρειών.</p>
-            <span class="btn-action" style="background-color: #6c757d;">Σύντομα διαθέσιμο</span>
+        <div class="flex items-center gap-4">
+            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Admin Mode</span>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="text-gray-500 hover:text-red-600 transition-colors font-medium">Logout</button>
+            </form>
         </div>
     </div>
+</header>
 
-    <div class="logout-section">
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="btn-logout">Αποσύνδεση</button>
-        </form>
+<main class="flex-1 max-w-7xl mx-auto px-6 py-12 w-full">
+    <div class="mb-12">
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+            <span class="gradient-text-blue-cyan">Στρατηγείο Διαχείρισης</span>
+            <span class="gradient-text-cyan-blue"> GPO</span>
+        </h1>
+        <p class="text-gray-600">Καλωσήρθες, Διαχειριστή. Επιλέξτε μια ενέργεια για τη διαχείριση του συστήματος.</p>
     </div>
-</div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        <div class="benefit-card bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col items-center text-center group">
+            <div class="w-16 h-16 mb-6 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Κατηγορίες</h3>
+            <p class="text-gray-500 mb-8 text-sm leading-relaxed">Οργάνωση του καταλόγου σε θεματικές ενότητες προϊόντων.</p>
+            <a th:href="@{/admin/categories/add}" class="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold shadow-md hover:shadow-xl transition-all">
+                Προσθήκη Κατηγορίας
+            </a>
+        </div>
+
+        <div class="benefit-card bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col items-center text-center group">
+            <div class="w-16 h-16 mb-6 rounded-2xl bg-cyan-50 flex items-center justify-center text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white transition-all duration-300">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Προϊόντα</h3>
+            <p class="text-gray-500 mb-8 text-sm leading-relaxed">Εισαγωγή προϊόντων και καθορισμός τιμών GPO.</p>
+            <a th:href="@{/admin/products/add}" class="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold shadow-md hover:shadow-xl transition-all">
+                Προσθήκη Προϊόντος
+            </a>
+        </div>
+
+        <div class="benefit-card bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col items-center text-center opacity-75">
+            <div class="w-16 h-16 mb-6 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Προμηθευτές</h3>
+            <p class="text-gray-500 mb-8 text-sm leading-relaxed">Επισκόπηση και διαχείριση συνεργαζόμενων εταιρειών.</p>
+            <span class="w-full py-3 bg-gray-100 text-gray-400 rounded-xl font-bold text-sm cursor-default">
+                Σύντομα Διαθέσιμο
+            </span>
+        </div>
+
+    </div>
+</main>
+
+<footer class="bg-white border-t border-gray-200 py-8">
+    <div class="max-w-7xl mx-auto px-6 text-center text-gray-500 text-sm font-medium">
+        PharmaGPO &copy; 2026 | Σύστημα Διαχείρισης GPO
+    </div>
+</footer>
 
 </body>
 </html>

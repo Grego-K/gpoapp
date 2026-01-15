@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPO Admin Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .admin-container { max-width: 1000px; margin: 50px auto; padding: 20px; font-family: 'Segoe UI', sans-serif; }
+        .welcome-header { border-bottom: 2px solid #333; margin-bottom: 30px; padding-bottom: 10px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .dashboard-card {
+            background: #fff; border: 1px solid #ddd; border-radius: 10px;
+            padding: 25px; text-align: center; transition: transform 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .dashboard-card:hover { transform: translateY(-5px); }
+        .card-icon { font-size: 40px; margin-bottom: 15px; display: block; }
+        .btn-action {
+            display: inline-block; background-color: #007bff; color: white;
+            padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 15px;
+        }
+        .btn-action:hover { background-color: #0056b3; }
+        .logout-section { margin-top: 40px; text-align: right; }
+        .btn-logout { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <div class="welcome-header">
+        <h1>Στρατηγείο Διαχείρισης GPO</h1>
+        <p>Καλωσήρθες, <strong>Διαχειριστή</strong>. Επιλέξτε μια ενέργεια για τη διαχείριση του συστήματος.</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <span class="card-icon">📂</span>
+            <h3>Κατηγορίες</h3>
+            <p>Οργάνωση του καταλόγου σε κατηγορίες προϊόντων.</p>
+            <a th:href="@{/admin/categories/add}" class="btn-action">Προσθήκη Κατηγορίας</a>
+        </div>
+
+        <div class="dashboard-card">
+            <span class="card-icon">📦</span>
+            <h3>Προϊόντα</h3>
+            <p>Εισαγωγή προϊόντων και καθορισμός τιμών GPO.</p>
+            <a th:href="@{/admin/products/add}" class="btn-action">Προσθήκη Προϊόντος</a>
+        </div>
+
+        <div class="dashboard-card" style="opacity: 0.7;">
+            <span class="card-icon">🚛</span>
+            <h3>Προμηθευτές</h3>
+            <p>Επισκόπηση συνεργαζόμενων εταιρειών.</p>
+            <span class="btn-action" style="background-color: #6c757d;">Σύντομα διαθέσιμο</span>
+        </div>
+    </div>
+
+    <div class="logout-section">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="btn-logout">Αποσύνδεση</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Προσθήκη Προϊόντος - GPO App</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <style>
+    .form-container { max-width: 700px; margin: 30px auto; padding: 30px; border: 1px solid #ddd; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .form-header { border-bottom: 2px solid #007bff; margin-bottom: 25px; padding-bottom: 10px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group.full-width { grid-column: span 2; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+    input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    .error-message { color: #d9534f; font-size: 0.85em; margin-top: 5px; font-weight: bold; }
+    .btn-submit { background-color: #007bff; color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; width: 100%; font-size: 18px; margin-top: 20px; transition: background 0.3s; }
+    .btn-submit:hover { background-color: #0056b3; }
+    .btn-back { display: block; text-align: center; margin-top: 20px; color: #666; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<div class="form-container">
+  <div class="form-header">
+    <h2>Εισαγωγή Νέου Προϊόντος</h2>
+    <p>Συμπληρώστε τα στοιχεία και ορίστε τις τιμές GPO.</p>
+  </div>
+
+  <form th:action="@{/admin/products/save}" th:object="${productDTO}" method="post">
+
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label for="productName">Όνομα Προϊόντος</label>
+        <input type="text" id="productName" th:field="*{productName}" placeholder="π.χ. Depon Maximum 1000mg">
+        <div class="error-message" th:if="${#fields.hasErrors('productName')}" th:errors="*{productName}"></div>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="description">Περιγραφή</label>
+        <textarea id="description" th:field="*{description}" rows="3"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="basePrice">Αρχική Τιμή (€)</label>
+        <input type="number" step="0.01" id="basePrice" th:field="*{basePrice}">
+        <div class="error-message" th:if="${#fields.hasErrors('basePrice')}" th:errors="*{basePrice}"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="gpoPrice">Τιμή GPO (€)</label>
+        <input type="number" step="0.01" id="gpoPrice" th:field="*{gpoPrice}">
+        <div class="error-message" th:if="${#fields.hasErrors('gpoPrice')}" th:errors="*{gpoPrice}"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="stockQuantity">Απόθεμα (Stock)</label>
+        <input type="number" id="stockQuantity" th:field="*{stockQuantity}">
+        <div class="error-message" th:if="${#fields.hasErrors('stockQuantity')}" th:errors="*{stockQuantity}"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="categoryId">Κατηγορία</label>
+        <select id="categoryId" th:field="*{categoryId}">
+          <option value="">Επιλέξτε Κατηγορία...</option>
+          <option th:each="cat : ${categories}"
+                  th:value="${cat.id}"
+                  th:text="${cat.name}"></option>
+        </select>
+        <div class="error-message" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></div>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="supplierId">Προμηθευτής</label>
+        <select id="supplierId" th:field="*{supplierId}">
+          <option value="">Επιλέξτε Προμηθευτή...</option>
+          <option th:each="sup : ${suppliers}"
+                  th:value="${sup.id}"
+                  th:text="${sup.companyName}"></option>
+        </select>
+        <div class="error-message" th:if="${#fields.hasErrors('supplierId')}" th:errors="*{supplierId}"></div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit">Αποθήκευση Προϊόντος</button>
+  </form>
+
+  <a th:href="@{/admin/dashboard}" class="btn-back">← Επιστροφή στο Dashboard</a>
+</div>
+
+</body>
+</html>

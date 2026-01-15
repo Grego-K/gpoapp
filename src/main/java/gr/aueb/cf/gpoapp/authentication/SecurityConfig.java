@@ -26,7 +26,8 @@ public class SecurityConfig {
                         .requestMatchers("/", "/landing", "/login", "/register").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll()
 
-                        // Περιορισμοί βάσει authorization role (pharmacist/supplier)
+                        // Περιορισμοί βάσει authorization role (pharmacist/supplier/admin)
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/pharmacist/**").hasAuthority("PHARMACIST")
                         .requestMatchers("/supplier/**").hasAuthority("SUPPLIER")
 

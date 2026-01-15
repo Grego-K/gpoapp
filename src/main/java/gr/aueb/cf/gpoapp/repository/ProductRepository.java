@@ -20,4 +20,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // Προϊόντα που είναι σε απόθεμα
     List<Product> findByStockQuantityGreaterThan(Integer quantity);
+
+    // Εύρεση προϊόντων βάσει κατηγορίας
+    List<Product> findByCategoryId(Long categoryId);
 }

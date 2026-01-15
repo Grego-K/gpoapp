@@ -43,6 +43,11 @@ public class Product extends AbstractEntity {
     @JoinColumn(name = "supplier_id")
     private Supplier supplier;
 
+    // Σύνδεση με Category
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     public void setStockQuantity(Integer stockQuantity) {
         if (stockQuantity != null && stockQuantity < 0) {
             throw new IllegalArgumentException("Stock quantity cannot be negative");

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaGPO - Κατάλογος Προϊόντων</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/landing.css}">
+</head>
+<body class="min-h-screen flex flex-col bg-gradient-to-br from-white via-gray-50 to-teal-50">
+
+<header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <a th:href="@{/pharmacist/dashboard}" class="text-blue-700 font-bold text-xl flex items-center gap-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Pharma<span class="text-cyan-600">GPO</span>
+            </a>
+        </div>
+        <div class="flex items-center gap-6">
+            <span class="text-sm font-medium text-gray-500">Κατάλογος Προμηθειών</span>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="text-red-600 hover:text-red-700 font-medium text-sm">Logout</button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<main class="flex-1 max-w-7xl mx-auto px-6 py-10 w-full">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Διαθέσιμα Προϊόντα</h1>
+        <p class="text-gray-600">Αναζητήστε προϊόντα και επωφεληθείτε από τις ομαδικές εκπτώσεις GPO.</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+        <form th:action="@{/pharmacist/products}" method="get" th:object="${filters}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div class="md:col-span-2">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Αναζήτηση Όνοματος</label>
+                <div class="relative">
+                    <input type="text" th:field="*{productName}" placeholder="π.χ. Depon..."
+                           class="w-full pl-10 pr-4 py-2.5 rounded-xl border-gray-200 focus:ring-teal-500 focus:border-teal-500 text-sm">
+                    <svg class="w-4 h-4 absolute left-3 top-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Κατηγορία</label>
+                <select th:field="*{categoryId}" class="w-full py-2.5 rounded-xl border-gray-200 text-sm focus:ring-teal-500">
+                    <option value="">Όλες οι Κατηγορίες</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                </select>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="flex-1 bg-teal-600 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-teal-700 transition-colors shadow-md">
+                    Φιλτράρισμα
+                </button>
+                <a th:href="@{/pharmacist/products}" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="overflow-x-auto bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+                <th class="px-6 py-4 text-sm font-semibold text-gray-700">Προϊόν</th>
+                <th class="px-6 py-4 text-sm font-semibold text-gray-700">Κατηγορία</th>
+                <th class="px-6 py-4 text-sm font-semibold text-gray-700 text-right">Αρχική</th>
+                <th class="px-6 py-4 text-sm font-semibold text-blue-700 text-right">Τιμή GPO</th>
+                <th class="px-6 py-4 text-sm font-semibold text-gray-700 text-center">Απόθεμα</th>
+                <th class="px-6 py-4 text-sm font-semibold text-gray-700 text-center">Ενέργεια</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+            <tr th:each="product : ${products}" class="hover:bg-blue-50/50 transition-colors group">
+                <td class="px-6 py-4">
+                    <div class="font-medium text-gray-900" th:text="${product.productName}">Όνομα</div>
+                    <div class="text-xs text-gray-400 font-medium" th:text="${product.supplier != null ? product.supplier.companyName : 'N/A'}">Προμηθευτής</div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-600">
+                    <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold uppercase" th:text="${product.category != null ? product.category.name : 'Γενικό'}">Κατηγορία</span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-400 line-through text-right" th:text="${#numbers.formatDecimal(product.basePrice, 1, 2)} + ' €'">0.00</td>
+                <td class="px-6 py-4 text-sm font-bold text-blue-600 text-right" th:text="${#numbers.formatDecimal(product.gpoPrice, 1, 2)} + ' €'">0.00</td>
+                <td class="px-6 py-4 text-sm text-center">
+                    <span th:class="${product.stockQuantity < 10} ? 'bg-red-100 text-red-600 px-2 py-1 rounded-lg font-bold' : 'text-gray-600'"
+                          th:text="${product.stockQuantity}">0</span>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center justify-center gap-2">
+                        <input type="number" min="1" th:max="${product.stockQuantity}" value="1"
+                               class="w-16 rounded-lg border-gray-300 text-sm focus:ring-teal-500">
+                        <button class="bg-teal-600 text-white p-2 rounded-lg hover:bg-teal-700 transition-all shadow hover:shadow-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(products)}">
+                <td colspan="6" class="px-6 py-10 text-center text-gray-500 italic">
+                    Δεν βρέθηκαν προϊόντα με αυτά τα κριτήρια.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="flex items-center justify-between bg-white px-6 py-4 rounded-2xl border border-gray-100 shadow-sm" th:if="${pagination.totalPages > 1}">
+        <div class="text-sm text-gray-500">
+            Εμφάνιση <span class="font-bold text-gray-800" th:text="${pagination.numberOfElements}">0</span> από <span class="font-bold text-gray-800" th:text="${pagination.totalElements}">0</span> προϊόντα
+        </div>
+        <div class="flex gap-2">
+            <a th:if="${pagination.currentPage > 0}"
+               th:href="@{/pharmacist/products(page=${pagination.currentPage - 1}, productName=${filters.productName}, categoryId=${filters.categoryId})}"
+               class="px-4 py-2 bg-gray-50 text-gray-600 rounded-xl hover:bg-gray-100 transition-colors text-sm font-bold border border-gray-200">
+                Προηγούμενη
+            </a>
+
+            <div class="flex items-center px-4 text-sm font-bold text-teal-600 bg-teal-50 rounded-xl border border-teal-100">
+                Σελίδα <span class="mx-1" th:text="${pagination.currentPage + 1}">1</span> από <span class="mx-1" th:text="${pagination.totalPages}">1</span>
+            </div>
+
+            <a th:if="${pagination.currentPage < pagination.totalPages - 1}"
+               th:href="@{/pharmacist/products(page=${pagination.currentPage + 1}, productName=${filters.productName}, categoryId=${filters.categoryId})}"
+               class="px-4 py-2 bg-gray-50 text-gray-600 rounded-xl hover:bg-gray-100 transition-colors text-sm font-bold border border-gray-200">
+                Επόμενη
+            </a>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-white border-t border-gray-200 py-6 mt-10">
+    <div class="max-w-7xl mx-auto px-6 text-center text-gray-400 text-xs">
+        PharmaGPO Inventory Control &copy; 2026 | Σύστημα Αποθεμάτων
+    </div>
+</footer>
+
+</body>
+</html>

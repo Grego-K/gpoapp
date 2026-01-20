@@ -1,26 +1,60 @@
 package gr.aueb.cf.gpoapp.repository;
 
 import gr.aueb.cf.gpoapp.model.Product;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    /**
+     * Επιστρέφει σελιδοποιημένα προϊόντα με προαιρετικά φίλτρα.
+     */
+    @Query("""
+            SELECT p FROM Product p
+            LEFT JOIN FETCH p.category
+            LEFT JOIN FETCH p.supplier
+            WHERE (:name IS NULL OR LOWER(p.productName) LIKE LOWER(CONCAT('%', :name, '%')))
+              AND (:catId IS NULL OR p.category.id = :catId)
+           """)
+    Page<Product> findFiltered(
+            @Param("name") String name,
+            @Param("catId") Long catId,
+            Pageable pageable
+    );
+
+    /**
+     * Επιστρέφει όλα τα προϊόντα με φορτωμένες τις βασικές συσχετίσεις.
+     */
+    @Query("""
+            SELECT p FROM Product p
+            LEFT JOIN FETCH p.category
+            LEFT JOIN FETCH p.supplier
+           """)
+    List<Product> findAllWithRelations();
+
+    // Αναζήτηση προϊόντος βάσει UUID
     Optional<Product> findByUuid(String uuid);
 
-    // Αναζήτηση προϊόντων με μέρος του ονόματος (π.χ. "depon" θα φέρει "DEPON 100mg")
-    List<Product> findByProductNameContainingIgnoreCase(String productName, Pageable pageable);
+    // Αναζήτηση προϊόντων βάσει ονόματος (case-insensitive)
+    List<Product> findByProductNameContainingIgnoreCase(
+            String productName,
+            Pageable pageable
+    );
 
-    // Εύρεση όλων των προϊόντων ενός προμηθευτή
+    // Προϊόντα ανά προμηθευτή
     List<Product> findBySupplierId(Long supplierId);
 
-    // Προϊόντα που είναι σε απόθεμα
     List<Product> findByStockQuantityGreaterThan(Integer quantity);
 
-    // Εύρεση προϊόντων βάσει κατηγορίας
+    // Προιόντα ανά κατηγορία
     List<Product> findByCategoryId(Long categoryId);
 }

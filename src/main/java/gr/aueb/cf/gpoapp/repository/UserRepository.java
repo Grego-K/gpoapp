@@ -1,7 +1,7 @@
 package gr.aueb.cf.gpoapp.repository;
 
 import gr.aueb.cf.gpoapp.model.User;
-import gr.aueb.cf.gpoapp.model.enums.Role;
+import gr.aueb.cf.gpoapp.model.Role;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

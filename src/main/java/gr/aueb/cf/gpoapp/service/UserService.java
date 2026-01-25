@@ -4,16 +4,17 @@ import gr.aueb.cf.gpoapp.core.exceptions.EntityAlreadyExistsException;
 import gr.aueb.cf.gpoapp.core.exceptions.EntityNotFoundException;
 import gr.aueb.cf.gpoapp.dto.UserInsertDTO;
 import gr.aueb.cf.gpoapp.mapper.UserMapper;
+import gr.aueb.cf.gpoapp.model.Role;
 import gr.aueb.cf.gpoapp.model.User;
 import gr.aueb.cf.gpoapp.model.static_data.Region;
 import gr.aueb.cf.gpoapp.repository.RegionRepository;
+import gr.aueb.cf.gpoapp.repository.RoleRepository;
 import gr.aueb.cf.gpoapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import gr.aueb.cf.gpoapp.model.enums.Role;
 
 @Slf4j
 @Service
@@ -22,8 +23,9 @@ public class UserService implements IUserService {
 
     private final UserRepository userRepository;
     private final RegionRepository regionRepository;
+    private final RoleRepository roleRepository;
     private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder; // Inject για την κρυπτογράφηση
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -52,8 +54,9 @@ public class UserService implements IUserService {
             // Κρυπτογράφηση κωδικού πριν την αποθήκευση
             user.setPassword(passwordEncoder.encode(userInsertDTO.getPassword()));
 
-            // Ατόματη απόδοση ρόλου PHARMACIST
-            user.setRole(Role.PHARMACIST);
+            Role role = roleRepository.findByName("PHARMACIST")
+                    .orElseThrow(() -> new EntityNotFoundException("Role", "Role PHARMACIST not found in database"));
+            user.setRole(role);
 
             // Εύρεση και σύνδεση Region
             Region region = regionRepository.findById(userInsertDTO.getRegion())
@@ -64,7 +67,7 @@ public class UserService implements IUserService {
             User savedUser = userRepository.save(user);
 
             // Logging επιτυχίας
-            log.info("User with username={} and vat={} saved with role PHARMACIST.", userInsertDTO.getUsername(), userInsertDTO.getVat());
+            log.info("User with username={} and vat={} saved with dynamic role PHARMACIST.", userInsertDTO.getUsername(), userInsertDTO.getVat());
 
             return savedUser;
 

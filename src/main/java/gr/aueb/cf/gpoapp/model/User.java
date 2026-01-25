@@ -1,23 +1,21 @@
 package gr.aueb.cf.gpoapp.model;
 
-import gr.aueb.cf.gpoapp.model.enums.Role;
 import gr.aueb.cf.gpoapp.model.static_data.Region;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Setter
 @Getter
 @Table(name = "users")
@@ -60,12 +58,24 @@ public class User extends AbstractEntity implements UserDetails {
         if (uuid == null) uuid = UUID.randomUUID().toString();
     }
 
-    @Enumerated(EnumType.STRING)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
     private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        Set<GrantedAuthority> authorities = new HashSet<>();
+
+        if (role != null) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+
+            if (role.getCapabilities() != null) {
+                role.getCapabilities().forEach(capability -> {
+                    authorities.add(new SimpleGrantedAuthority(capability.getName()));
+                });
+            }
+        }
+        return authorities;
     }
 
     @Override

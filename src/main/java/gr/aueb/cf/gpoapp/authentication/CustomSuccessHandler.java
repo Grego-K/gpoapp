@@ -15,34 +15,30 @@ import java.util.Collection;
 public class CustomSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+    public void onAuthenticationSuccess(HttpServletRequest request,
+                                        HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 
-        // Παίρνουμε τα roles (authorities) του συνδεδεμένου χρήστη
+        // Παίρνουμε τα roles του συνδεδεμένου χρήστη
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String redirectUrl = null;
 
-
-        // Redirect για κάθε ρόλο στο κεντρικό του dashboard
-        for (GrantedAuthority grantedAuthority : authorities) {
-            if (grantedAuthority.getAuthority().equals("ADMIN")) {
-                redirectUrl = "/admin/dashboard";
-                break;
-            } else if (grantedAuthority.getAuthority().equals("PHARMACIST")) {
-                redirectUrl = "/pharmacist/dashboard";
-                break;
-            } else if (grantedAuthority.getAuthority().equals("SUPPLIER")) {
-                redirectUrl = "/supplier/dashboard";
-                break;
-            }
+        if (authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            redirectUrl = "/admin/dashboard"; //
+        } else if (authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_PHARMACIST"))) {
+            redirectUrl = "/pharmacist/dashboard";
+        } else if (authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_SUPPLIER"))) {
+            redirectUrl = "/supplier/dashboard";
+        } else if (authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_FINANCE"))) {
+            redirectUrl = "/finance/dashboard";
         }
 
-        // Αν δεν βρέθηκε ρόλος, redirect στην αρχική σελίδα
+        // Αν δεν βρεθεί ρόλος, redirect στην αρχική
         if (redirectUrl == null) {
             redirectUrl = "/";
         }
 
-        // Εκτέλεση του redirect στο τελικό URL
+        // Εκτέλεση του redirect στο τελικό url
         response.sendRedirect(request.getContextPath() + redirectUrl);
     }
 }

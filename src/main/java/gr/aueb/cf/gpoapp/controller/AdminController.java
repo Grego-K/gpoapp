@@ -115,7 +115,8 @@ public class AdminController {
 
             return "admin/edit-product";
         } catch (Exception e) {
-            return "redirect:/pharmacist/products?errorNotFound";
+            // Redirect στο νέο κοινόχρηστο path /products
+            return "redirect:/products?errorNotFound";
         }
     }
 
@@ -133,7 +134,8 @@ public class AdminController {
         try {
             // Κλήση του service για την ενημέρωση στη βάση
             productService.updateProduct(id, productDTO);
-            return "redirect:/pharmacist/products?successUpdate";
+            // Redirect στο νέο κοινόχρηστο path /products
+            return "redirect:/products?successUpdate";
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Σφάλμα κατά την ενημέρωση: " + e.getMessage());
             model.addAttribute("categories", categoryService.findAllCategories());
@@ -147,9 +149,10 @@ public class AdminController {
     public String deleteProduct(@PathVariable("id") Long id) {
         try {
             productService.deleteProduct(id);
-            return "redirect:/pharmacist/products?successDelete";
+            // Redirect στο νέο κοινόχρηστο path /products για succeess & error
+            return "redirect:/products?successDelete";
         } catch (Exception e) {
-            return "redirect:/pharmacist/products?errorDelete";
+            return "redirect:/products?errorDelete";
         }
     }
 }

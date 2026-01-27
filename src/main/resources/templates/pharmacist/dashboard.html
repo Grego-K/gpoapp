@@ -9,33 +9,7 @@
 </head>
 <body class="min-h-screen flex flex-col bg-gradient-to-br from-white via-gray-50 to-teal-50">
 
-<header class="bg-white shadow-sm border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center">
-            <svg class="w-48 h-12" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
-                <g transform="translate(10, 10)">
-                    <rect x="10" y="5" width="6" height="20" fill="url(#logoGradient)" rx="1"/>
-                    <rect x="5" y="10" width="16" height="6" fill="url(#logoGradient)" rx="1"/>
-                    <circle cx="13" cy="13" r="10" fill="none" stroke="url(#logoGradient)" stroke-width="2"/>
-                </g>
-                <text x="45" y="28" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#1e40af">
-                    Pharma<tspan fill="#0891b2">GPO</tspan>
-                </text>
-                <defs>
-                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#1e40af"/><stop offset="100%" style="stop-color:#0891b2"/>
-                    </linearGradient>
-                </defs>
-            </svg>
-        </div>
-        <div class="flex items-center gap-4">
-            <span class="text-sm font-medium text-teal-600 bg-teal-50 px-3 py-1 rounded-full">Pharmacist Access</span>
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="text-red-600 hover:text-red-700 font-medium text-sm">Logout</button>
-            </form>
-        </div>
-    </div>
-</header>
+<div th:replace="~{fragments/layout :: header}"></div>
 
 <main class="flex-1 flex flex-col items-center justify-center p-6">
     <div class="max-w-4xl w-full">
@@ -43,48 +17,34 @@
             <h1 class="text-4xl font-bold text-gray-800 mb-4">
                 Καλωσήρθατε στο <span class="text-blue-700">Pharma</span><span class="text-cyan-600">GPO</span>
             </h1>
-            <p class="text-gray-600">Διαχειριστείτε τις προμήθειες του φαρμακείου σας με τις καλύτερες τιμές της αγοράς.</p>
+            <p class="text-gray-600">Διαχειριστείτε τις προμήθειες του φαρμακείου σας με τις καλύτερες τιμές.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="benefit-card bg-white p-10 rounded-3xl shadow-xl border border-teal-100 flex flex-col items-center text-center group transition-all">
-                <div class="w-20 h-20 bg-teal-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-colors duration-300">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
+            <div class="benefit-card bg-white p-10 rounded-3xl shadow-xl border border-teal-100 flex flex-col items-center text-center group transition-all hover:shadow-2xl">
+                <div class="w-20 h-20 bg-teal-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-all">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                 </div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-3">Κατάλογος Προϊόντων</h2>
                 <p class="text-gray-500 mb-8 flex-1">Περιηγηθείτε στα διαθέσιμα προϊόντα και επωφεληθείτε από τις ομαδικές εκπτώσεις.</p>
-                <a th:href="@{/pharmacist/products}" class="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold shadow-md hover:shadow-xl transition-all text-center">
+                <a th:href="@{/pharmacist/products}" class="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold shadow-md hover:shadow-xl transition-all">
                     Προβολή Προϊόντων
                 </a>
             </div>
 
             <div class="benefit-card bg-white p-10 rounded-3xl shadow-xl border border-gray-100 flex flex-col items-center text-center opacity-75">
                 <div class="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-gray-400">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                    </svg>
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                 </div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-3">Οι Παραγγελίες μου</h2>
                 <p class="text-gray-500 mb-8 flex-1">Παρακολουθήστε το ιστορικό και την κατάσταση των παραγγελιών σας.</p>
-                <span class="w-full py-4 bg-gray-100 text-gray-400 rounded-xl font-bold text-center cursor-default">
-                    Σύντομα Διαθέσιμο
-                </span>
+                <span class="w-full py-4 bg-gray-100 text-gray-400 rounded-xl font-bold cursor-default">Σύντομα Διαθέσιμο</span>
             </div>
-        </div>
-
-        <div class="mt-12 p-4 bg-white/50 backdrop-blur rounded-2xl border border-teal-100 text-center">
-            <span class="text-teal-700 text-sm font-medium">Account Status: Verified Member</span>
         </div>
     </div>
 </main>
 
-<footer class="bg-white border-t border-gray-200 py-6">
-    <div class="max-w-7xl mx-auto px-6 text-center text-gray-500 text-sm">
-        PharmaGPO.gr &copy; 2026 | Σύστημα Διαχείρισης Φαρμακοποιών
-    </div>
-</footer>
+<div th:replace="~{fragments/layout :: footer}"></div>
 
 </body>
 </html>

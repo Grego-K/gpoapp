@@ -9,35 +9,7 @@
 </head>
 <body class="min-h-screen flex flex-col bg-gradient-to-br from-white via-gray-50 to-blue-50">
 
-<header class="bg-white shadow-sm border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center">
-            <a th:href="@{/admin/dashboard}">
-                <svg class="w-48 h-12" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
-                    <g transform="translate(10, 10)">
-                        <rect x="10" y="5" width="6" height="20" fill="url(#logoGradient)" rx="1"/>
-                        <rect x="5" y="10" width="16" height="6" fill="url(#logoGradient)" rx="1"/>
-                        <circle cx="13" cy="13" r="10" fill="none" stroke="url(#logoGradient)" stroke-width="2"/>
-                    </g>
-                    <text x="45" y="28" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#1e40af">
-                        Pharma<tspan fill="#0891b2">GPO</tspan>
-                    </text>
-                    <defs>
-                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#1e40af"/><stop offset="100%" style="stop-color:#0891b2"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-            </a>
-        </div>
-        <div class="flex items-center gap-4">
-            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Admin Mode</span>
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="text-gray-500 hover:text-red-600 transition-colors font-medium">Logout</button>
-            </form>
-        </div>
-    </div>
-</header>
+<div th:replace="~{fragments/layout :: header}"></div>
 
 <main class="flex-1 max-w-7xl mx-auto px-6 py-12 w-full">
     <div class="mb-12">
@@ -97,11 +69,7 @@
     </div>
 </main>
 
-<footer class="bg-white border-t border-gray-200 py-8 mt-auto">
-    <div class="max-w-7xl mx-auto px-6 text-center text-gray-500 text-sm font-medium">
-        PharmaGPO &copy; 2026 | Σύστημα Διαχείρισης GPO
-    </div>
-</footer>
+<div th:replace="~{fragments/layout :: footer}"></div>
 
 </body>
 </html>

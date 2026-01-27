@@ -4,70 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PharmaGPO - Είσοδος</title>
-
     <script src="https://cdn.tailwindcss.com"></script>
-
     <link rel="stylesheet" th:href="@{/css/landing.css}">
 </head>
-
 <body class="min-h-screen flex flex-col bg-gradient-to-br from-white via-gray-50 to-blue-50">
 
 <header class="bg-white shadow-sm border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <div class="flex items-center">
-            <span class="text-xl font-bold text-blue-800">Pharma<span class="text-cyan-600">GPO</span></span>
+            <a th:href="@{/}">
+                <span class="text-xl font-bold text-blue-800">Pharma<span class="text-cyan-600">GPO</span></span>
+            </a>
         </div>
         <a th:href="@{/}" class="text-gray-600 hover:text-blue-600 font-medium">Επιστροφή</a>
     </div>
 </header>
 
 <main class="flex-1 flex items-center justify-center px-6">
-
-    <div class="w-full max-w-md benefit-card">
-
+    <div class="w-full max-w-md benefit-card bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">Καλώς ορίσατε</h1>
             <p class="text-gray-600">Συνδεθείτε στον λογαριασμό σας</p>
         </div>
 
         <form th:action="@{/login}" method="post" class="space-y-6">
-
+            <div th:if="${param.error}" class="p-3 bg-red-50 text-red-700 text-xs rounded-lg font-bold border border-red-100">
+                Λάθος στοιχεία σύνδεσης. Δοκιμάστε ξανά.
+            </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Username ή Email</label>
-                <input type="text" name="username" required
-                       class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"/>
+                <input type="text" name="username" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all"/>
             </div>
-
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Κωδικός Πρόσβασης</label>
-                <input type="password" name="password" required
-                       class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"/>
+                <input type="password" name="password" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition-all"/>
             </div>
-
-            <div class="flex items-center justify-between text-sm">
-                <label class="flex items-center text-gray-600">
-                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 mr-2">
-                    Παραμονή σύνδεσης
-                </label>
-                <a href="#" class="text-blue-600 hover:underline">Ξεχάσατε τον κωδικό;</a>
-            </div>
-
-            <button type="submit"
-                    class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-cyan-700 transition-all">
+            <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all">
                 Είσοδος
             </button>
-
             <p class="text-center text-gray-600 text-sm mt-6">
-                Δεν έχετε λογαριασμό;
-                <a th:href="@{/register}" class="text-blue-600 font-bold hover:underline">Εγγραφείτε τώρα</a>
+                Δεν έχετε λογαριασμό; <a th:href="@{/register}" class="text-blue-600 font-bold hover:underline">Εγγραφείτε τώρα</a>
             </p>
         </form>
     </div>
 </main>
 
 <footer class="py-6 text-center text-gray-500 text-sm">
-    PharmaGPO.gr 2026
+    PharmaGPO &copy; 2026 | Ασφαλής Σύνδεση
 </footer>
-
 </body>
 </html>

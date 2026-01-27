@@ -42,6 +42,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll() // Για το login που θα επιστρέφει token
                         .requestMatchers("/api/products/**").hasAnyRole("PHARMACIST", "ADMIN")
 
+                        // Κοινόχρηστο path για τον κατάλογο προϊόντων
+                        .requestMatchers("/products/**").hasAnyRole("PHARMACIST", "ADMIN")
+
                         // Περιορισμοί βάσει capabilities - authorities
                         .requestMatchers("/admin/products/edit/**").hasAuthority("CAN_EDIT_PRODUCTS")
                         .requestMatchers("/admin/products/delete/**").hasAuthority("CAN_DELETE_PRODUCTS")
@@ -50,7 +53,7 @@ public class SecurityConfig {
 
                         // Περιορισμοί βάσει roles
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/pharmacist/**").hasAnyRole("PHARMACIST", "ADMIN")
+                        .requestMatchers("/pharmacist/**").hasRole("PHARMACIST")
                         .requestMatchers("/supplier/**").hasRole("SUPPLIER")
                         .requestMatchers("/finance/**").hasRole("FINANCE")
 

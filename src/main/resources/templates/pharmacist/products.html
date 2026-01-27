@@ -32,7 +32,19 @@
 <main class="flex-1 max-w-7xl mx-auto px-6 py-10 w-full">
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-800 mb-2">Διαθέσιμα Προϊόντα</h1>
-        <p class="text-gray-600">Αναζητήστε προϊόντα και διαχειριστείτε το απόθεμα βάσει των δικαιωμάτων σας[cite: 30, 521].</p>
+        <p class="text-gray-600">Αναζητήστε προϊόντα και διαχειριστείτε το απόθεμα βάσει των δικαιωμάτων σας.</p>
+    </div>
+
+    <div class="mb-4">
+        <div th:if="${param.successUpdate}" class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-xl border border-green-200 font-bold">
+            Το προϊόν ενημερώθηκε επιτυχώς!
+        </div>
+        <div th:if="${param.successDelete}" class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-xl border border-red-200 font-bold">
+            Το προϊόν διαγράφηκε επιτυχώς από το σύστημα.
+        </div>
+        <div th:if="${param.errorDelete}" class="p-4 mb-4 text-sm text-orange-700 bg-orange-100 rounded-xl border border-orange-200 font-bold">
+            Σφάλμα: Το προϊόν δεν μπορεί να διαγραφεί (πιθανώς συνδέεται με παραγγελίες).
+        </div>
     </div>
 
     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
@@ -109,7 +121,8 @@
                             <a sec:authorize="hasAuthority('CAN_DELETE_PRODUCTS')"
                                th:href="@{/admin/products/delete/{id}(id=${product.id})}"
                                class="bg-red-100 text-red-700 p-2 rounded-lg hover:bg-red-200 transition-colors"
-                               [cite_start]onclick="return confirm('Είστε σίγουροι για τη διαγραφή;')" title="Διαγραφή ">
+                               onclick="return confirm('ΠΡΟΣΟΧΗ: Είστε σίγουροι ότι θέλετε να διαγράψετε οριστικά αυτό το προϊόν;')"
+                               title="Διαγραφή">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </a>
                         </div>

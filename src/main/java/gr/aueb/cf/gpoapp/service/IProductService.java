@@ -11,6 +11,9 @@ import java.util.Optional;
 public interface IProductService {
     Product saveProduct(ProductDTO productDTO) throws Exception;
 
+    // Μετονομασία σε findAll για χρήση σε API
+    List<Product> findAll();
+
     List<Product> findAllProducts();
     Product findProductById(Long id) throws Exception;
     Optional<Product> findProductByProductName(String productName);

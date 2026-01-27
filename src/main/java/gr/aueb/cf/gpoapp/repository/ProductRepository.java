@@ -11,9 +11,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    /**
+     * Επιστρέφει ένα προϊόν με την κατηγορία και τον προμηθευτή φορτωμένα (Eager).
+     */
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category LEFT JOIN FETCH p.supplier WHERE p.id = :id")
+    Optional<Product> findByIdWithRelations(@Param("id") Long id);
 
     /**
      * Επιστρέφει σελιδοποιημένα προϊόντα με προαιρετικά φίλτρα.

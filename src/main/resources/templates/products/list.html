@@ -16,7 +16,7 @@
 <main class="flex-1 max-w-7xl mx-auto px-6 py-10 w-full">
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-800 mb-2">Διαθέσιμα Προϊόντα GPO</h1>
-        <p class="text-gray-600">Αναζητήστε προϊόντα και διαχειριστείτε το απόθεμα βάσει των δικαιωμάτων σας.</p>
+        <p class="text-gray-600">Κεντρικός κατάλογος προμηθειών.</p>
     </div>
 
     <div class="mb-4">
@@ -29,7 +29,7 @@
     </div>
 
     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
-        <form th:action="@{/pharmacist/products}" method="get" th:object="${filters}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <form th:action="@{/products}" method="get" th:object="${filters}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div class="md:col-span-2">
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Αναζήτηση Όνοματος</label>
                 <input type="text" th:field="*{productName}" placeholder="π.χ. Depon..."
@@ -61,7 +61,7 @@
             </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
-            <tr th:each="product : ${products}" class="hover:bg-blue-50/50 transition-colors group">
+            <tr th:each="product : ${pagination.data}" class="hover:bg-blue-50/50 transition-colors group">
                 <td class="px-6 py-4">
                     <div class="font-medium text-gray-900" th:text="${product.productName}">Όνομα</div>
                     <div class="text-xs text-gray-400 font-medium" th:text="${product.supplier != null ? product.supplier.companyName : 'N/A'}">Προμηθευτής</div>
@@ -79,7 +79,7 @@
                     <div class="flex items-center justify-center gap-2">
                         <div sec:authorize="hasRole('PHARMACIST')" class="flex items-center gap-2">
                             <input type="number" min="1" th:max="${product.stockQuantity}" value="1" class="w-16 rounded-lg border-gray-300 text-sm focus:ring-teal-500">
-                            <button class="bg-teal-600 text-white p-2 rounded-lg hover:bg-teal-700 transition-all shadow">
+                            <button class="bg-teal-600 text-white p-2 rounded-lg hover:bg-teal-700 transition-all shadow" title="Προσθήκη στην Παραγγελία">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                             </button>
                         </div>
@@ -104,8 +104,13 @@
             Σελίδα <span class="font-bold text-gray-800" th:text="${pagination.currentPage + 1}">1</span> από <span class="font-bold text-gray-800" th:text="${pagination.totalPages}">1</span>
         </div>
         <div class="flex gap-2">
-            <a th:if="${pagination.currentPage > 0}" th:href="@{/pharmacist/products(page=${pagination.currentPage - 1})}" class="px-4 py-2 bg-gray-50 text-gray-600 rounded-xl hover:bg-gray-100 transition-colors text-sm font-bold border border-gray-200">Προηγούμενη</a>
-            <a th:if="${pagination.currentPage < pagination.totalPages - 1}" th:href="@{/pharmacist/products(page=${pagination.currentPage + 1})}" class="px-4 py-2 bg-gray-50 text-gray-600 rounded-xl hover:bg-gray-100 transition-colors text-sm font-bold border border-gray-200">Επόμενη</a>
+            <a th:if="${pagination.currentPage > 0}"
+               th:href="@{/products(page=${pagination.currentPage - 1}, productName=${filters.productName}, categoryId=${filters.categoryId})}"
+               class="px-4 py-2 bg-gray-50 text-gray-600 rounded-xl hover:bg-gray-100 transition-colors text-sm font-bold border border-gray-200">Προηγούμενη</a>
+
+            <a th:if="${pagination.currentPage < pagination.totalPages - 1}"
+               th:href="@{/products(page=${pagination.currentPage + 1}, productName=${filters.productName}, categoryId=${filters.categoryId})}"
+               class="px-4 py-2 bg-gray-50 text-gray-600 rounded-xl hover:bg-gray-100 transition-colors text-sm font-bold border border-gray-200">Επόμενη</a>
         </div>
     </div>
 </main>

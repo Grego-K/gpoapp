@@ -49,7 +49,14 @@ public class ProductService implements IProductService {
         return productRepository.save(product);
     }
 
-    // Επιστρέφει σελιδοποιημένα και φιλτραρισμένα προϊόντα.
+    // Υλοποίηση της findAll για το REST API
+    @Override
+    @Transactional(readOnly = true)
+    public List<Product> findAll() {
+        return productRepository.findAll();
+    }
+
+    // Επιστρέφει σελιδοποιημένα και φιλτραρισμένα προϊόντα
     @Override
     @Transactional(readOnly = true)
     public Page<Product> getFilteredProducts(ProductFilters filters) {
@@ -69,8 +76,9 @@ public class ProductService implements IProductService {
     @Override
     @Transactional(readOnly = true)
     public Product findProductById(Long id) throws Exception {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new Exception("Το προϊόν δεν βρέθηκε"));
+        // Χρήση της μεθόδου με Fetch Join για να αποφύγουμε LazyInit issues στο REST API
+        return productRepository.findByIdWithRelations(id)
+                .orElseThrow(() -> new Exception("Το προϊόν με ID " + id + " δεν βρέθηκε"));
     }
 
     @Override
@@ -84,7 +92,6 @@ public class ProductService implements IProductService {
     @Override
     @Transactional(readOnly = true)
     public List<Product> findProductsBySupplierId(Long supplierId) {
-        // Επιστρέφει λίστα προϊόντων του προμηθευτή
         return productRepository.findBySupplierId(supplierId);
     }
 }

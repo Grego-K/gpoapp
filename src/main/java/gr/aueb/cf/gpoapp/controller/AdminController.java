@@ -2,6 +2,7 @@ package gr.aueb.cf.gpoapp.controller;
 
 import gr.aueb.cf.gpoapp.dto.CategoryDTO;
 import gr.aueb.cf.gpoapp.dto.ProductDTO;
+import gr.aueb.cf.gpoapp.model.Product;
 import gr.aueb.cf.gpoapp.service.ICategoryService;
 import gr.aueb.cf.gpoapp.service.IProductService;
 import gr.aueb.cf.gpoapp.service.ISupplierService;
@@ -21,7 +22,7 @@ public class AdminController {
     private final IProductService productService;
     private final ISupplierService supplierService;
 
-    // Εμφάνιση του κεντρικού Admin Dashboard
+    // Εμφάνιση του admin dashboard
     @GetMapping("/dashboard")
     public String adminDashboard() {
         return "admin/dashboard";
@@ -89,5 +90,66 @@ public class AdminController {
         model.addAttribute("suppliers", supplierService.findAllSuppliers());
 
         return "admin/add-product";
+    }
+
+    // Εμφάνιση της φόρμας επεξεργασίας για ένα υπάρχον προϊόν
+    @GetMapping("/products/edit/{id}")
+    public String showEditProductForm(@PathVariable("id") Long id, Model model) {
+        try {
+            Product product = productService.findProductById(id);
+
+            // Μετατροπή Entity σε DTO για να προσυμπληρωθεί η φόρμα
+            ProductDTO productDTO = new ProductDTO();
+            productDTO.setId(product.getId());
+            productDTO.setProductName(product.getProductName());
+            productDTO.setDescription(product.getDescription());
+            productDTO.setBasePrice(product.getBasePrice());
+            productDTO.setGpoPrice(product.getGpoPrice());
+            productDTO.setStockQuantity(product.getStockQuantity());
+            productDTO.setCategoryId(product.getCategory().getId());
+            productDTO.setSupplierId(product.getSupplier().getId());
+
+            model.addAttribute("productDTO", productDTO);
+            model.addAttribute("categories", categoryService.findAllCategories());
+            model.addAttribute("suppliers", supplierService.findAllSuppliers());
+
+            return "admin/edit-product";
+        } catch (Exception e) {
+            return "redirect:/pharmacist/products?errorNotFound";
+        }
+    }
+
+    // Επεξεργασία και αποθήκευση των αλλαγών ενός προϊόντος
+    @PostMapping("/products/update/{id}")
+    public String updateProduct(@PathVariable("id") Long id,
+                                @Valid @ModelAttribute("productDTO") ProductDTO productDTO,
+                                BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("categories", categoryService.findAllCategories());
+            model.addAttribute("suppliers", supplierService.findAllSuppliers());
+            return "admin/edit-product";
+        }
+
+        try {
+            // Κλήση του service για την ενημέρωση στη βάση
+            productService.updateProduct(id, productDTO);
+            return "redirect:/pharmacist/products?successUpdate";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Σφάλμα κατά την ενημέρωση: " + e.getMessage());
+            model.addAttribute("categories", categoryService.findAllCategories());
+            model.addAttribute("suppliers", supplierService.findAllSuppliers());
+            return "admin/edit-product";
+        }
+    }
+
+    // Διαγραφή προϊόντος βάσει ID
+    @GetMapping("/products/delete/{id}")
+    public String deleteProduct(@PathVariable("id") Long id) {
+        try {
+            productService.deleteProduct(id);
+            return "redirect:/pharmacist/products?successDelete";
+        } catch (Exception e) {
+            return "redirect:/pharmacist/products?errorDelete";
+        }
     }
 }

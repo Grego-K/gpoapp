@@ -49,6 +49,43 @@ public class ProductService implements IProductService {
         return productRepository.save(product);
     }
 
+    @Override
+    @Transactional
+    public Product updateProduct(Long id, ProductDTO productDTO) throws Exception {
+        // Βριίσκουμε το υπάρχον προϊόν
+        Product product = productRepository.findByIdWithRelations(id)
+                .orElseThrow(() -> new Exception("Το προϊόν προς ενημέρωση δεν βρέθηκε"));
+
+        // Ενημερώνουμε τα βασικά πεδία
+        product.setProductName(productDTO.getProductName());
+        product.setDescription(productDTO.getDescription());
+        product.setBasePrice(productDTO.getBasePrice());
+        product.setGpoPrice(productDTO.getGpoPrice());
+        product.setStockQuantity(productDTO.getStockQuantity());
+
+        // Ενημερώνουμε Category και Supplier αν έχουν αλλάξει
+        Category category = categoryRepository.findById(productDTO.getCategoryId())
+                .orElseThrow(() -> new Exception("Η νέα κατηγορία δεν βρέθηκε"));
+        Supplier supplier = supplierRepository.findById(productDTO.getSupplierId())
+                .orElseThrow(() -> new Exception("Ο νέος προμηθευτής δεν βρέθηκε"));
+
+        product.setCategory(category);
+        product.setSupplier(supplier);
+
+        // Αποθήκευση των αλλαγών
+        return productRepository.save(product);
+    }
+
+    @Override
+    @Transactional
+    public void deleteProduct(Long id) throws Exception {
+        // Ελέγχουμε αν υπάρχει πριν τη διαγραφή
+        if (!productRepository.existsById(id)) {
+            throw new Exception("Το προϊόν με ID " + id + " δεν βρέθηκε για να διαγραφεί");
+        }
+        productRepository.deleteById(id);
+    }
+
     // Υλοποίηση της findAll για το REST API
     @Override
     @Transactional(readOnly = true)

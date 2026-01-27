@@ -19,4 +19,6 @@ public interface IProductService {
     Optional<Product> findProductByProductName(String productName);
     List<Product> findProductsBySupplierId(Long supplierId);
     Page<Product> getFilteredProducts(ProductFilters filters);
+    Product updateProduct(Long id, ProductDTO productDTO) throws Exception; // Product update
+    void deleteProduct(Long id) throws Exception; // Product delete
 }

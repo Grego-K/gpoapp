@@ -85,7 +85,12 @@
                                 <div sec:authorize="hasRole('PHARMACIST')" class="flex items-center gap-2">
                                     <input type="number" th:id="'qty-' + ${product.id}" value="1" min="1"
                                            class="w-12 px-2 py-1 text-xs border rounded-lg text-center focus:ring-1 focus:ring-teal-500 outline-none">
-                                    <button th:onclick="'addToCart(' + ${product.id} + ', \'' + ${product.productName} + '\', ' + ${product.gpoPrice} + ')'"
+
+                                    <button type="button"
+                                            th:data-id="${product.id}"
+                                            th:data-name="${product.productName}"
+                                            th:data-price="${product.gpoPrice}"
+                                            onclick="handleAddToCart(this)"
                                             class="p-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-all shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                     </button>
@@ -145,22 +150,40 @@
 
 <script th:inline="javascript">
     let cart = [];
+
+    // Διορθωμένη συνάρτηση που διαβάζει τα Data Attributes
+    function handleAddToCart(button) {
+        const id = button.getAttribute('data-id');
+        const name = button.getAttribute('data-name');
+        const price = parseFloat(button.getAttribute('data-price'));
+        addToCart(id, name, price);
+    }
+
     function addToCart(id, name, price) {
         const qtyInput = document.getElementById('qty-' + id);
         const quantity = parseInt(qtyInput.value);
-        const existing = cart.find(i => i.productId === id);
-        if (existing) { existing.quantity += quantity; }
-        else { cart.push({ productId: id, name: name, price: price, quantity: quantity }); }
+
+        // Μετατροπή id σε String για ασφαλή σύγκριση αν χρειάζεται
+        const existing = cart.find(i => i.productId == id);
+
+        if (existing) {
+            existing.quantity += quantity;
+        } else {
+            cart.push({ productId: id, name: name, price: price, quantity: quantity });
+        }
         updateCartUI();
     }
+
     function removeFromCart(id) {
-        cart = cart.filter(i => i.productId !== id);
+        cart = cart.filter(i => i.productId != id);
         updateCartUI();
     }
+
     function updateCartUI() {
         const container = document.getElementById('cart-items');
         const totalEl = document.getElementById('cart-total');
         const btn = document.getElementById('btn-submit');
+
         if (cart.length === 0) {
             container.innerHTML = '<p class="text-gray-400 text-center text-sm py-8 border-2 border-dashed border-gray-50 rounded-xl">Το καλάθι είναι άδειο</p>';
             totalEl.innerText = '0.00 €';
@@ -168,6 +191,7 @@
             btn.className = "w-full py-4 bg-gray-200 text-gray-400 rounded-xl font-bold transition-all cursor-not-allowed";
             return;
         }
+
         let total = 0;
         container.innerHTML = cart.map(item => {
             total += (item.price * item.quantity);
@@ -177,11 +201,12 @@
                         <div class="text-xs font-bold text-gray-800">${item.name}</div>
                         <div class="text-[10px] text-gray-400 font-bold">${item.quantity} x ${item.price.toFixed(2)}€</div>
                     </div>
-                    <button onclick="removeFromCart(${item.productId})" class="text-gray-300 hover:text-red-500">
+                    <button onclick="removeFromCart('${item.productId}')" class="text-gray-300 hover:text-red-500">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"></path></svg>
                     </button>
                 </div>`;
         }).join('');
+
         totalEl.innerText = total.toFixed(2) + ' €';
         btn.disabled = false;
         btn.className = "w-full py-4 bg-teal-600 text-white rounded-xl font-bold shadow-lg hover:bg-teal-700 transition-all";
@@ -191,11 +216,14 @@
         const payload = cart.map(i => ({ productId: i.productId, quantity: i.quantity }));
         const response = await fetch('/pharmacist/orders/add-bulk', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }, // ΑΦΑΙΡΕΘΗΚΕ ΤΟ CSRF HEADER
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-        if (response.ok) { window.location.href = '/pharmacist/orders'; }
-        else { alert('Σφάλμα κατά την καταχώρηση.'); }
+        if (response.ok) {
+            window.location.href = '/pharmacist/orders';
+        } else {
+            alert('Σφάλμα κατά την καταχώρηση.');
+        }
     }
 </script>
 </body>

@@ -31,8 +31,12 @@ public class Order extends AbstractEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    /**
+     * Το length = 50 διασφαλίζει ότι η στήλη στη MySQL θα δημιουργηθεί με επαρκές μέγεθος
+     * ώστε να μην συμβαίνει το σφάλμα "Data truncated".
+     */
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false, length = 50)
     private OrderStatus status;
 
     // Μια παραγγελία - πολλά OrderItems
@@ -68,5 +72,16 @@ public class Order extends AbstractEntity {
         if (uuid == null) {
             uuid = UUID.randomUUID().toString();
         }
+    }
+
+    /**
+     * Επιστρέφει τα ονόματα των προμηθευτών για αυτή την παραγγελία.
+     * Απαιτεί Deep FETCH JOIN στο Repository για να αποφευχθεί το LazyInitializationException.
+     */
+    public List<String> getDistinctSuppliers() {
+        return orderItems.stream()
+                .map(item -> item.getProduct().getSupplier().getCompanyName())
+                .distinct()
+                .toList();
     }
 }

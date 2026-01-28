@@ -1,121 +1,146 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      lang="el">
+<html xmlns:th="http://www.thymeleaf.org" lang="el">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PharmaGPO - Κατάλογος Προϊόντων</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" th:href="@{/css/landing.css}">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
 </head>
-<body class="min-h-screen flex flex-col bg-gradient-to-br from-white via-gray-50 to-teal-50">
+<body class="bg-gray-50 min-h-screen flex flex-col font-sans">
 
 <div th:replace="~{fragments/layout :: header}"></div>
 
-<main class="flex-1 max-w-7xl mx-auto px-6 py-10 w-full">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">Διαθέσιμα Προϊόντα GPO</h1>
-        <p class="text-gray-600">Κεντρικός κατάλογος προμηθειών.</p>
-    </div>
+<main class="max-w-[1600px] mx-auto px-4 py-6 w-full flex-1">
+    <div class="flex flex-col lg:flex-row gap-6 items-start">
 
-    <div class="mb-4">
-        <div th:if="${param.successUpdate}" class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-xl border border-green-200 font-bold">
-            Το προϊόν ενημερώθηκε επιτυχώς!
-        </div>
-        <div th:if="${param.successDelete}" class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-xl border border-red-200 font-bold">
-            Το προϊόν διαγράφηκε επιτυχώς.
-        </div>
-    </div>
+        <div class="w-full lg:w-3/4 flex flex-col gap-6">
 
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
-        <form th:action="@{/products}" method="get" th:object="${filters}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            <div class="md:col-span-2">
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Αναζήτηση Όνοματος</label>
-                <input type="text" th:field="*{productName}" placeholder="π.χ. Depon..."
-                       class="w-full px-4 py-2.5 rounded-xl border-gray-200 focus:ring-teal-500 text-sm">
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                <h1 class="text-2xl font-bold text-gray-800 mb-4">Διαθέσιμα Προϊόντα GPO</h1>
+                <form method="get" th:action="@{/products}" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <input type="text" name="name" th:value="${param.name}" placeholder="Αναζήτηση..." class="w-full px-3 py-2 rounded-lg border border-gray-200 outline-none text-sm">
+                    <select name="categoryId" class="w-full px-3 py-2 rounded-lg border border-gray-200 outline-none text-sm">
+                        <option value="">Όλες οι Κατηγορίες</option>
+                        <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                    </select>
+                    <button type="submit" class="py-2 bg-teal-600 text-white rounded-lg font-bold hover:bg-teal-700 text-sm shadow-sm transition-all">Φιλτράρισμα</button>
+                </form>
             </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Κατηγορία</label>
-                <select th:field="*{categoryId}" class="w-full py-2.5 rounded-xl border-gray-200 text-sm focus:ring-teal-500">
-                    <option value="">Όλες οι Κατηγορίες</option>
-                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
-                </select>
+
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 border-b border-gray-200 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                    <tr>
+                        <th class="px-6 py-4">Προϊόν</th>
+                        <th class="px-6 py-4 text-right">Τιμή GPO</th>
+                        <th class="px-6 py-4 text-center">Ενέργειες</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                    <tr th:each="product : ${products}" class="hover:bg-gray-50/80 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-gray-800 text-sm" th:text="${product.productName}">Product</div>
+                            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-tight" th:text="${product.supplier.companyName}">Supplier</div>
+                        </td>
+                        <td class="px-6 py-4 text-right font-bold text-teal-600 text-sm" th:text="${#numbers.formatDecimal(product.gpoPrice, 1, 2) + ' €'}">0.00 €</td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <input type="number" value="1" min="1" th:id="'qty-' + ${product.id}" class="w-14 px-2 py-1 rounded-md border border-gray-200 text-sm outline-none focus:ring-1 focus:ring-teal-500">
+                                <button type="button" th:onclick="addToTempList([[${product.id}]], [[${product.productName}]], [[${product.gpoPrice}]])" class="p-1.5 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-all shadow-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
-            <button type="submit" class="bg-teal-600 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-teal-700 transition-colors shadow-md">
-                Φιλτράρισμα
-            </button>
-        </form>
-    </div>
 
-    <div class="overflow-x-auto bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
-        <table class="w-full text-left border-collapse">
-            <thead class="bg-gray-50 border-b border-gray-200">
-            <tr>
-                <th class="px-6 py-4 text-sm font-semibold text-gray-700">Προϊόν</th>
-                <th class="px-6 py-4 text-sm font-semibold text-gray-700">Κατηγορία</th>
-                <th class="px-6 py-4 text-sm font-semibold text-gray-700 text-right">Αρχική</th>
-                <th class="px-6 py-4 text-sm font-semibold text-blue-700 text-right">Τιμή GPO</th>
-                <th class="px-6 py-4 text-sm font-semibold text-gray-700 text-center">Απόθεμα</th>
-                <th class="px-6 py-4 text-sm font-semibold text-gray-700 text-center">Ενέργειες</th>
-            </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-            <tr th:each="product : ${pagination.data}" class="hover:bg-blue-50/50 transition-colors group">
-                <td class="px-6 py-4">
-                    <div class="font-medium text-gray-900" th:text="${product.productName}">Όνομα</div>
-                    <div class="text-xs text-gray-400 font-medium" th:text="${product.supplier != null ? product.supplier.companyName : 'N/A'}">Προμηθευτής</div>
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-600">
-                    <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-bold uppercase" th:text="${product.category != null ? product.category.name : 'Γενικό'}">Κατηγορία</span>
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-400 line-through text-right" th:text="${#numbers.formatDecimal(product.basePrice, 1, 2)} + ' €'">0.00</td>
-                <td class="px-6 py-4 text-sm font-bold text-blue-600 text-right" th:text="${#numbers.formatDecimal(product.gpoPrice, 1, 2)} + ' €'">0.00</td>
-                <td class="px-6 py-4 text-sm text-center">
-                    <span th:class="${product.stockQuantity < 10} ? 'bg-red-100 text-red-600 px-2 py-1 rounded-lg font-bold' : 'text-gray-600'"
-                          th:text="${product.stockQuantity}">0</span>
-                </td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center justify-center gap-2">
-                        <div sec:authorize="hasRole('PHARMACIST')" class="flex items-center gap-2">
-                            <input type="number" min="1" th:max="${product.stockQuantity}" value="1" class="w-16 rounded-lg border-gray-300 text-sm focus:ring-teal-500">
-                            <button class="bg-teal-600 text-white p-2 rounded-lg hover:bg-teal-700 transition-all shadow" title="Προσθήκη στην Παραγγελία">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                            </button>
-                        </div>
+            <div th:if="${products instanceof T(org.springframework.data.domain.Page) and products.totalPages > 1}" class="flex justify-center gap-2 py-6">
+                <a th:each="i : ${#numbers.sequence(0, products.totalPages - 1)}"
+                   th:href="@{/products(page=${i}, name=${param.name}, categoryId=${param.categoryId})}"
+                   th:text="${i + 1}"
+                   th:class="${products.number == i} ? 'px-4 py-2 bg-teal-600 text-white rounded-lg font-bold shadow-md' : 'px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 text-sm font-medium transition-all'">
+                </a>
+            </div>
+        </div>
 
-                        <div sec:authorize="hasRole('ADMIN')" class="flex items-center gap-2">
-                            <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="bg-blue-100 text-blue-700 p-2 rounded-lg hover:bg-blue-200 transition-colors" title="Επεξεργασία">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                            </a>
-                            <a th:href="@{/admin/products/delete/{id}(id=${product.id})}" class="bg-red-100 text-red-700 p-2 rounded-lg hover:bg-red-200 transition-colors" onclick="return confirm('Οριστική διαγραφή;')" title="Διαγραφή">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            </a>
-                        </div>
+        <aside class="w-full lg:w-1/4">
+            <div class="sticky top-6 bg-white rounded-xl border border-teal-200 flex flex-col min-h-[400px] max-h-[85vh] shadow-sm">
+                <div class="p-5 border-b border-teal-50 bg-teal-50/30 rounded-t-xl">
+                    <h2 class="text-sm font-bold text-gray-700 uppercase tracking-widest flex items-center gap-2">
+                        🛒 Προσωρινή Λίστα
+                    </h2>
+                </div>
+
+                <div id="temp-cart-items" class="flex-1 overflow-y-auto p-5 space-y-3 custom-scrollbar">
+                    <p class="text-gray-400 text-sm text-center py-10 italic">Δεν έχετε επιλέξει είδη</p>
+                </div>
+
+                <div class="p-5 bg-gray-50/50 rounded-b-xl border-t border-gray-100">
+                    <div class="flex justify-between items-center mb-5">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Σύνολο:</span>
+                        <span id="temp-total-price" class="text-teal-600 text-xl font-black">0.00 €</span>
                     </div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+                    <form th:action="@{/pharmacist/orders/add-bulk}" method="post">
+                        <input type="hidden" name="itemsJson" id="itemsJson">
+                        <button type="submit" id="submit-bulk-btn" disabled
+                                class="w-full py-4 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-all disabled:bg-gray-300 shadow-lg disabled:shadow-none text-xs uppercase tracking-widest">
+                            Καταχώρηση Μαζικά
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
 
-    <div class="flex items-center justify-between bg-white px-6 py-4 rounded-2xl border border-gray-100 shadow-sm" th:if="${pagination.totalPages > 1}">
-        <div class="text-sm text-gray-500">
-            Σελίδα <span class="font-bold text-gray-800" th:text="${pagination.currentPage + 1}">1</span> από <span class="font-bold text-gray-800" th:text="${pagination.totalPages}">1</span>
-        </div>
-        <div class="flex gap-2">
-            <a th:if="${pagination.currentPage > 0}"
-               th:href="@{/products(page=${pagination.currentPage - 1}, productName=${filters.productName}, categoryId=${filters.categoryId})}"
-               class="px-4 py-2 bg-gray-50 text-gray-600 rounded-xl hover:bg-gray-100 transition-colors text-sm font-bold border border-gray-200">Προηγούμενη</a>
-
-            <a th:if="${pagination.currentPage < pagination.totalPages - 1}"
-               th:href="@{/products(page=${pagination.currentPage + 1}, productName=${filters.productName}, categoryId=${filters.categoryId})}"
-               class="px-4 py-2 bg-gray-50 text-gray-600 rounded-xl hover:bg-gray-100 transition-colors text-sm font-bold border border-gray-200">Επόμενη</a>
-        </div>
     </div>
 </main>
 
 <div th:replace="~{fragments/layout :: footer}"></div>
 
+<script>
+    let selectedItems = [];
+    function addToTempList(id, name, price) {
+        const qty = parseInt(document.getElementById('qty-' + id).value);
+        if (qty <= 0 || isNaN(qty)) return;
+        const existing = selectedItems.find(item => item.productId === id);
+        if (existing) { existing.quantity += qty; }
+        else { selectedItems.push({ productId: id, productName: name, unitPrice: price, quantity: qty }); }
+        renderTempCart();
+    }
+    function removeItem(id) {
+        selectedItems = selectedItems.filter(item => item.productId !== id);
+        renderTempCart();
+    }
+    function renderTempCart() {
+        const container = document.getElementById('temp-cart-items');
+        const totalEl = document.getElementById('temp-total-price');
+        const btn = document.getElementById('submit-bulk-btn');
+        const jsonIn = document.getElementById('itemsJson');
+        if (selectedItems.length === 0) {
+            container.innerHTML = '<p class="text-gray-400 text-sm text-center py-10 italic">Δεν έχετε επιλέξει είδη</p>';
+            totalEl.innerText = "0.00 €"; btn.disabled = true; jsonIn.value = ""; return;
+        }
+        let total = 0;
+        container.innerHTML = selectedItems.map(item => {
+            total += (item.unitPrice * item.quantity);
+            return `
+                <div class="bg-white p-4 rounded-xl border border-gray-100 flex justify-between items-center hover:border-teal-200 transition-all shadow-sm">
+                    <div class="text-left overflow-hidden mr-2">
+                        <div class="text-sm font-bold text-gray-800 leading-tight">${item.productName}</div>
+                        <div class="text-xs text-gray-500 font-medium mt-1">${item.quantity} τμχ x ${item.unitPrice.toFixed(2)}€</div>
+                    </div>
+                    <button type="button" onclick="removeItem(${item.productId})" class="text-red-300 hover:text-red-500 font-bold text-xl leading-none ml-2 transition-colors">&times;</button>
+                </div>`;
+        }).join('');
+        totalEl.innerText = total.toFixed(2) + " €"; btn.disabled = false;
+        jsonIn.value = JSON.stringify(selectedItems);
+    }
+</script>
 </body>
 </html>

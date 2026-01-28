@@ -28,6 +28,14 @@ public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional(readOnly = true)
+    public User findByUsername(String username) {
+        log.info("Attempting to find user by username: {}", username);
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User with username '" + username + "' not found"));
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public User registerUser(UserInsertDTO userInsertDTO)
             throws EntityAlreadyExistsException, EntityNotFoundException {

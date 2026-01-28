@@ -35,11 +35,11 @@ public class SecurityConfig {
                         .requestMatchers("/", "/landing", "/login", "/register").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll()
 
-                        // Swagger & API documentation (δημόσια για testing)
+                        // Swagger & API documentation
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
                         // Endpoints για το rest API
-                        .requestMatchers("/api/auth/**").permitAll() // Για το login που θα επιστρέφει token
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/products/**").hasAnyRole("PHARMACIST", "ADMIN")
 
                         // Κοινόχρηστο path για τον κατάλογο προϊόντων

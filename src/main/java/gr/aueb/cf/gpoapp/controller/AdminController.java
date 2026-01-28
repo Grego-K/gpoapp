@@ -144,12 +144,11 @@ public class AdminController {
         }
     }
 
-    // Διαγραφή προϊόντος βάσει ID
-    @GetMapping("/products/delete/{id}")
+    // Αλλαγή από Get σε Post
+    @PostMapping("/products/delete/{id}")
     public String deleteProduct(@PathVariable("id") Long id) {
         try {
             productService.deleteProduct(id);
-            // Redirect στο νέο κοινόχρηστο path /products για succeess & error
             return "redirect:/products?successDelete";
         } catch (Exception e) {
             return "redirect:/products?errorDelete";

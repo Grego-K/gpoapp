@@ -1,7 +1,6 @@
 package gr.aueb.cf.gpoapp.controller;
 
 import gr.aueb.cf.gpoapp.core.filters.ProductFilters;
-import gr.aueb.cf.gpoapp.core.filters.Paginated;
 import gr.aueb.cf.gpoapp.model.Product;
 import gr.aueb.cf.gpoapp.service.ICategoryService;
 import gr.aueb.cf.gpoapp.service.IProductService;
@@ -27,16 +26,23 @@ public class ProductController {
             @ModelAttribute("filters") ProductFilters filters,
             Model model) {
 
-        // Ενημερώνουμε τα πεδία που κληρονομούνται από τη GenericFilters
+        // Ενημερώνουμε τα πεδία φίλτρων για τη σελιδοποίηση
         filters.setPage(page);
         filters.setPageSize(size);
 
+        // Λήψη του Page αντικειμένου από το service
         Page<Product> productPage = productService.getFilteredProducts(filters);
-        Paginated<Product> paginated = Paginated.fromPage(productPage);
 
-        model.addAttribute("products", paginated.getData());
+        /* * Στέλνουμε το productPage ως "products".
+         * Έτσι το Thymeleaf template μπορεί να καλέσει:
+         * 1. products.content (για τη λίστα)
+         * 2. products.totalPages (για τα κουμπιά pagination)
+         */
+        model.addAttribute("products", productPage);
         model.addAttribute("categories", categoryService.findAllCategories());
-        model.addAttribute("pagination", paginated);
+
+        // Κρατάμε τα filters στο model για να παραμένουν οι τιμές στα inputs της φόρμας
+        model.addAttribute("filters", filters);
 
         return "products/list";
     }

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PharmaGPO - Οι Παραγγελίες μου</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col font-sans">
+
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<main class="flex-1 max-w-7xl mx-auto px-6 py-10 w-full">
+  <div class="flex justify-between items-end mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">Οι Παραγγελίες μου</h1>
+      <p class="text-gray-500 mt-1">Παρακολουθήστε το ιστορικό και την κατάσταση των συμφωνιών σας.</p>
+    </div>
+    <a th:href="@{/products}" class="px-6 py-3 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+      + Νέα Παραγγελία
+    </a>
+  </div>
+
+  <div th:if="${successMessage}" class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 font-bold rounded shadow-sm" th:text="${successMessage}"></div>
+  <div th:if="${errorMessage}" class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 font-bold rounded shadow-sm" th:text="${errorMessage}"></div>
+
+  <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+    <form method="get" th:action="@{/pharmacist/orders}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+      <div>
+        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Κατάσταση</label>
+        <select name="status" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+          <option value="">Όλες οι Καταστάσεις</option>
+          <option value="PENDING">Σε Αναμονή</option>
+          <option value="SUBMITTED">Στάλθηκε</option>
+          <option value="CANCELLED">Ακυρώθηκε</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Από Ημερομηνία</label>
+        <input type="date" name="dateFrom" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Προμηθευτής</label>
+        <select name="supplierId" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+          <option value="">Όλοι οι Προμηθευτές</option>
+          <option th:each="sup : ${suppliers}" th:value="${sup.id}" th:text="${sup.companyName}"></option>
+        </select>
+      </div>
+      <button type="submit" class="w-full py-2.5 bg-gray-800 text-white rounded-xl font-bold hover:bg-gray-900 transition-all">
+        Φιλτράρισμα
+      </button>
+    </form>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+    <table class="w-full text-left border-collapse">
+      <thead class="bg-gray-50 border-bottom-2 border-gray-100">
+      <tr>
+        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">ID & Ημερομηνία</th>
+        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Κατάσταση</th>
+        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Προϊόντα</th>
+        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Προμηθευτές</th>
+        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Σύνολο</th>
+        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">Ενέργειες</th>
+      </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+      <tr th:each="order : ${orders}" class="hover:bg-teal-50/30 transition-colors">
+        <td class="px-6 py-4">
+          <div class="font-bold text-blue-700 text-sm" th:text="${'#ORD-' + order.id}">#ORD-1</div>
+          <div class="text-xs text-gray-400" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy')}">28 Ιαν 2026</div>
+        </td>
+        <td class="px-6 py-4">
+                        <span th:classappend="${order.status.name() == 'PENDING' ? 'bg-amber-100 text-amber-700' : (order.status.name() == 'CANCELLED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700')}"
+                              class="px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 w-fit">
+                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                            <span th:text="${order.status}">Status</span>
+                        </span>
+        </td>
+        <td class="px-6 py-4 text-sm text-gray-600 font-medium" th:text="${order.orderItems.size() + ' είδη'}">4 είδη</td>
+        <td class="px-6 py-4">
+          <div class="flex flex-wrap gap-1">
+            <span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[9px] font-bold uppercase" th:each="supplierName : ${order.distinctSuppliers}" th:text="${supplierName}">Supplier</span>
+          </div>
+        </td>
+        <td class="px-6 py-4 text-right">
+          <div class="font-bold text-teal-600" th:text="${#numbers.formatDecimal(order.getTotalAmount(), 1, 2) + ' €'}">0.00 €</div>
+        </td>
+        <td class="px-6 py-4 text-center">
+          <div class="flex gap-2 justify-center">
+            <a th:href="@{/pharmacist/orders/{uuid}(uuid=${order.uuid})}" class="px-3 py-1.5 border border-blue-600 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white transition-all">Προβολή</a>
+
+            <form th:if="${order.status.name() == 'PENDING'}"
+                  th:action="@{/pharmacist/orders/{uuid}/cancel(uuid=${order.uuid})}"
+                  method="post" class="inline">
+              <button type="submit"
+                      onclick="return confirm('Είστε σίγουροι ότι θέλετε να ακυρώσετε την παραγγελία;')"
+                      class="px-3 py-1.5 border border-red-500 text-red-500 rounded-lg text-xs font-bold hover:bg-red-500 hover:text-white transition-all">
+                Ακύρωση
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+
+</body>
+</html>

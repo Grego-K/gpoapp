@@ -14,4 +14,6 @@ public interface IUserService {
      */
     User registerUser(UserInsertDTO userInsertDTO)
             throws EntityAlreadyExistsException, EntityNotFoundException, EntityInvalidArgumentException;
+
+    User findByUsername(String username);
 }

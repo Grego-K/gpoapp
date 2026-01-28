@@ -30,6 +30,17 @@
                     Admin Mode
                 </span>
 
+                <a sec:authorize="hasRole('PHARMACIST')" th:href="@{/pharmacist/orders}" class="relative p-2 text-gray-500 hover:text-teal-600 transition-colors group">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                    <span th:if="${activeOrder != null && !activeOrder.orderItems.isEmpty()}"
+                          class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full shadow-sm"
+                          th:text="${activeOrder.orderItems.size()}">
+                        0
+                    </span>
+                </a>
+
                 <form th:action="@{/logout}" method="post" class="inline">
                     <button type="submit" class="text-gray-500 hover:text-red-600 font-medium text-sm transition-colors border-l pl-6 border-gray-200">Logout</button>
                 </form>

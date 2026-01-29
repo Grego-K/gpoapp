@@ -1,13 +1,14 @@
 package gr.aueb.cf.gpoapp.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import gr.aueb.cf.gpoapp.dto.OrderItemRequestDTO;
 import gr.aueb.cf.gpoapp.model.Order;
 import gr.aueb.cf.gpoapp.model.User;
 import gr.aueb.cf.gpoapp.service.IOrderService;
 import gr.aueb.cf.gpoapp.service.ISupplierService;
 import gr.aueb.cf.gpoapp.service.IUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/pharmacist/orders")
@@ -25,7 +25,6 @@ public class OrderController {
     private final IOrderService orderService;
     private final IUserService userService;
     private final ISupplierService supplierService;
-    private final ObjectMapper objectMapper; // Για το parsing του JSON
 
     @GetMapping
     public String listOrders(Principal principal, Model model) {
@@ -37,30 +36,30 @@ public class OrderController {
     }
 
     /**
-     * ΝΕΟ ENDPOINT: Μαζική προσθήκη προϊόντων από την προσωρινή λίστα του UI.
+     * Μαζική προσθήκη προϊόντων:
+     * Δέχεται JSON body από το fetch της JavaScript.
+     * Χρησιμοποιεί το @RequestBody για αυτόματο mapping.
      */
     @PostMapping("/add-bulk")
-    public String addBulkProductsToOrder(@RequestParam("itemsJson") String itemsJson,
-                                         Principal principal,
-                                         RedirectAttributes redirectAttributes) {
+    @ResponseBody
+    public ResponseEntity<String> addBulkProductsToOrder(@RequestBody List<OrderItemRequestDTO> items,
+                                                         Principal principal) {
         try {
+            // Ταυτοποίηση χρήστη
             User user = userService.findByUsername(principal.getName());
 
-            // Μετατροπή του JSON String σε List από Maps
-            List<Map<String, Object>> items = objectMapper.readValue(itemsJson, new TypeReference<>() {});
-
-            // Προσθήκη κάθε προϊόντος στην παραγγελία
-            for (Map<String, Object> item : items) {
-                Long productId = Long.valueOf(item.get("productId").toString());
-                Integer quantity = Integer.valueOf(item.get("quantity").toString());
-                orderService.addProductToOrder(user, productId, quantity);
+            // Προσθήκη κάθε προϊόντος στην παραγγελία μέσω του Service
+            for (OrderItemRequestDTO item : items) {
+                orderService.addProductToOrder(user, item.getProductId(), item.getQuantity());
             }
 
-            redirectAttributes.addFlashAttribute("successMessage", "Τα προϊόντα προστέθηκαν επιτυχώς στην παραγγελία σας!");
+            // Επιστρέφουμε 200 OK για να το διαβάσει η JavaScript (response.ok)
+            return ResponseEntity.ok("Success");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Σφάλμα κατά τη μαζική προσθήκη: " + e.getMessage());
+            // Επιστρέφουμε 500 αν κάτι πάει στραβά στο server side
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Σφάλμα κατά τη μαζική προσθήκη: " + e.getMessage());
         }
-        return "redirect:/products";
     }
 
     @PostMapping("/{uuid}/submit")

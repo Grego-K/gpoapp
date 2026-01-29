@@ -1,27 +1,28 @@
 package gr.aueb.cf.gpoapp.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+// Read-Only DTO για την αναπαράσταση του προφίλ χρήστη
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
+@Builder
 public class UserReadOnlyDTO {
     private Long id;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private String email;
+    private String uuid;
+    private String username;
     private String firstname;
     private String lastname;
+    private String email;
     private String phoneNumber;
-    private String uuid;
     private String vat;
     private String region;
-    private String username;
     private String role;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

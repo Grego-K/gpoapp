@@ -41,6 +41,8 @@ public class SecurityConfig {
                         // Endpoints για το rest API
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/products/**").hasAnyRole("PHARMACIST", "ADMIN")
+                       .requestMatchers("/api/orders/**").hasRole("PHARMACIST")
+                        .requestMatchers("/api/users/me").authenticated()
 
                         // Κοινόχρηστο path για τον κατάλογο προϊόντων
                         .requestMatchers("/products/**").hasAnyRole("PHARMACIST", "ADMIN")

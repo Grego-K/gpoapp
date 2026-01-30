@@ -1,5 +1,6 @@
 package gr.aueb.cf.gpoapp.service;
 
+import gr.aueb.cf.gpoapp.core.filters.OrderFilters;
 import gr.aueb.cf.gpoapp.model.Order;
 import gr.aueb.cf.gpoapp.model.OrderItem;
 import gr.aueb.cf.gpoapp.model.Product;
@@ -8,10 +9,10 @@ import gr.aueb.cf.gpoapp.model.enums.OrderStatus;
 import gr.aueb.cf.gpoapp.repository.OrderRepository;
 import gr.aueb.cf.gpoapp.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -21,14 +22,25 @@ public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
-    // Επιστρέφει όλες τις παραγγελίες με Deep Fetch για να αποφευχθεί το LazyInitializationException
+    // Επιστρέφει τις παραγγελίες σε σελίδες, εφαρμόζοντας φίλτρα (status, date, supplier)
     @Override
     @Transactional(readOnly = true)
-    public List<Order> findAllOrdersByPharmacist(User user) {
-        return orderRepository.findByUserWithItemsOrderByCreatedAtDesc(user);
+    public Page<Order> findAllOrdersByPharmacist(User user, OrderFilters filters) {
+        // Μετατροπή του LocalDate σε LocalDateTime
+        LocalDateTime startDateTime = (filters.getDateFrom() != null)
+                ? filters.getDateFrom().atStartOfDay()
+                : null;
+
+        return orderRepository.findFilteredOrders(
+                user,
+                filters.getStatus(),
+                startDateTime,
+                filters.getSupplierId(),
+                filters.getPageable()
+        );
     }
 
-    //Επιστρέφει τις λεπτομέρειες μιας παραγγελίας χρησιμοποιώντας Deep Fetch
+    // Επιστρέφει τις λεπτομέρειες μιας παραγγελίας χρησιμοποιώντας Deep Fetch
     @Override
     @Transactional(readOnly = true)
     public Order findOrderByUuid(String uuid) {

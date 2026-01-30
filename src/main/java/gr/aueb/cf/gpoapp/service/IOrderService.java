@@ -1,19 +1,16 @@
 package gr.aueb.cf.gpoapp.service;
 
+import gr.aueb.cf.gpoapp.core.filters.OrderFilters;
 import gr.aueb.cf.gpoapp.model.Order;
 import gr.aueb.cf.gpoapp.model.User;
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface IOrderService {
-    List<Order> findAllOrdersByPharmacist(User user);
+    // Αλλαγή για να υποστηρίζει φιλτράρισμα και pagination
+    Page<Order> findAllOrdersByPharmacist(User user, OrderFilters filters);
+
     Order findOrderByUuid(String uuid);
-
-    // Προσθήκη προϊόντος στην ενεργή παραγγελία (active - order logic)
     void addProductToOrder(User user, Long productId, Integer quantity);
-
-    // Οριστικοποίηση και υποβολή της παραγγελίας
     void submitOrder(String uuid);
-
-    // Ακύρωση εκκρεμούς παραγγελίας
     void cancelOrder(String uuid);
 }

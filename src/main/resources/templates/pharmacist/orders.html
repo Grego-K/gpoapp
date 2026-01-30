@@ -30,20 +30,23 @@
         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Κατάσταση</label>
         <select name="status" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none text-sm">
           <option value="">Όλες οι Καταστάσεις</option>
-          <option value="PENDING">Σε Αναμονή</option>
-          <option value="SUBMITTED">Στάλθηκε</option>
-          <option value="CANCELLED">Ακυρώθηκε</option>
+          <option value="PENDING" th:selected="${filters.status?.name() == 'PENDING'}">Σε Αναμονή</option>
+          <option value="SUBMITTED" th:selected="${filters.status?.name() == 'SUBMITTED'}">Στάλθηκε</option>
+          <option value="CANCELLED" th:selected="${filters.status?.name() == 'CANCELLED'}">Ακυρώθηκε</option>
         </select>
       </div>
       <div>
         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Από Ημερομηνία</label>
-        <input type="date" name="dateFrom" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+        <input type="date" name="dateFrom" th:value="${filters.dateFrom}" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none text-sm">
       </div>
       <div>
         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2">Προμηθευτής</label>
         <select name="supplierId" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none text-sm">
           <option value="">Όλοι οι Προμηθευτές</option>
-          <option th:each="sup : ${suppliers}" th:value="${sup.id}" th:text="${sup.companyName}"></option>
+          <option th:each="sup : ${suppliers}"
+                  th:value="${sup.id}"
+                  th:text="${sup.companyName}"
+                  th:selected="${sup.id == filters.supplierId}"></option>
         </select>
       </div>
       <button type="submit" class="w-full py-2.5 bg-gray-800 text-white rounded-xl font-bold hover:bg-gray-900 transition-all">
@@ -102,9 +105,23 @@
           </div>
         </td>
       </tr>
+      <tr th:if="${#lists.isEmpty(orders)}">
+        <td colspan="6" class="px-6 py-10 text-center text-gray-400 italic">
+          Δεν βρέθηκαν παραγγελίες με τα συγκεκριμένα κριτήρια.
+        </td>
+      </tr>
       </tbody>
     </table>
   </div>
+
+  <div th:if="${orderPage.totalPages > 1}" class="flex justify-center gap-2 py-8">
+    <a th:each="i : ${#numbers.sequence(0, orderPage.totalPages - 1)}"
+       th:href="@{/pharmacist/orders(page=${i}, status=${filters.status}, dateFrom=${filters.dateFrom}, supplierId=${filters.supplierId})}"
+       th:text="${i + 1}"
+       th:class="${orderPage.number == i} ? 'px-4 py-2 bg-teal-600 text-white rounded-xl font-bold shadow-md' : 'px-4 py-2 bg-white text-gray-600 border border-gray-100 rounded-xl hover:bg-gray-50 transition-all'">
+    </a>
+  </div>
+
 </main>
 
 <div th:replace="~{fragments/layout :: footer}"></div>

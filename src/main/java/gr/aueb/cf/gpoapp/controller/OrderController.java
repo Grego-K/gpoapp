@@ -1,5 +1,6 @@
 package gr.aueb.cf.gpoapp.controller;
 
+import gr.aueb.cf.gpoapp.core.filters.OrderFilters;
 import gr.aueb.cf.gpoapp.dto.OrderItemRequestDTO;
 import gr.aueb.cf.gpoapp.model.Order;
 import gr.aueb.cf.gpoapp.model.User;
@@ -7,6 +8,7 @@ import gr.aueb.cf.gpoapp.service.IOrderService;
 import gr.aueb.cf.gpoapp.service.ISupplierService;
 import gr.aueb.cf.gpoapp.service.IUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -27,11 +29,19 @@ public class OrderController {
     private final ISupplierService supplierService;
 
     @GetMapping
-    public String listOrders(Principal principal, Model model) {
+    public String listOrders(Principal principal,
+                             @ModelAttribute("filters") OrderFilters filters,
+                             Model model) {
         User user = userService.findByUsername(principal.getName());
-        List<Order> orders = orderService.findAllOrdersByPharmacist(user);
-        model.addAttribute("orders", orders);
+
+        // Κλήση του Service με τα φίλτρα και τη σελιδοποίηση
+        Page<Order> orderPage = orderService.findAllOrdersByPharmacist(user, filters);
+
+        model.addAttribute("orders", orderPage.getContent());
+        model.addAttribute("orderPage", orderPage); // Για το pagination στο HTML
         model.addAttribute("suppliers", supplierService.findAllSuppliers());
+        model.addAttribute("filters", filters);
+
         return "pharmacist/orders";
     }
 
@@ -53,7 +63,7 @@ public class OrderController {
                 orderService.addProductToOrder(user, item.getProductId(), item.getQuantity());
             }
 
-            // Επιστρέφουμε 200 OK για να το διαβάσει η JavaScript (response.ok)
+            // Επιστρέφουμε 200 OK για να το διαβάσει η JavaScript
             return ResponseEntity.ok("Success");
         } catch (Exception e) {
             // Επιστρέφουμε 500 αν κάτι πάει στραβά στο server side

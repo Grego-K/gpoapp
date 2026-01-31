@@ -113,63 +113,48 @@
 - ![Figma](https://img.shields.io/badge/Figma-Design-F24E1E?logo=figma&logoColor=white)
 
 ---
-
 ##  Εγκατάσταση & Εκτέλεση
 
-### Προαπαιτούμενα
+Υπάρχουν δύο τρόποι να τρέξετε την εφαρμογή.
 
--  Java 17+
--  MySQL 8.0
--  Gradle 7.x+ 
+### Επιλογή Α: Γρήγορη Εκτέλεση (Quick Start - Προτεινόμενο)
+Δεν απαιτείται εγκατάσταση MySQL. Η βάση δημιουργείται αυτόματα στη RAM και τα δεδομένα φορτώνονται μέσω Flyway.
 
-###  1. Προετοιμασία Βάσης Δεδομένων
+**Προαπαιτούμενα:** Μόνο Java 21
 
-```sql
--- Δημιουργία βάσης
-CREATE DATABASE gpoappdb;
+### 1. Κλωνοποίηση & Είσοδος στο φάκελο:
+   ```powershell
+   git clone [https://github.com/Grego-K/gpoapp.git]
+   cd gpoapp
+   ```
+
+### 2.Build (Προετοιμασία):
+```powershell
+
+./gradlew.bat build -x test
+```
+### 3.Εκτέλεση ( Η2 Profile ):
+```powershell
+
+./gradlew.bat bootRun --args="--spring.profiles.active=h2"
 ```
 
-###  2. Φόρτωση δεδομένων
 
-1. Μεταβείτε στα [Releases](https://github.com/Grego-K/gpoapp/releases)
-2. Κατεβάστε το `Dump_sql_data_1.9.0.sql`
-3. Εισάγετε το dump:
-
-```bash
-# Μέσω MySQL CLI
-mysql -u root -p gpoappdb < Dump_sql_data_1.9.0.sql
-
-# Ή μέσω MySQL Workbench: Server → Data Import
-```
-
-###  3. Ρύθμιση Εφαρμογής
-
-Επεξεργαστείτε το `application.properties`:
-
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/gpoappdb
-spring.datasource.username=your_username
-spring.datasource.password=your_password
-```
-
-###  4. Εκτέλεση
-
-#### Επιλογή Α: Με Gradle
-
-```bash
-./gradlew bootRun
-```
-
-#### Επιλογή Β: Με JAR
-
-```bash
-# Κατεβάστε το gpoapp-1.9.0.jar από τα Releases
-java -jar gpoapp-1.9.0.jar
-```
-
-###  5. Πρόσβαση
+###  4. Πρόσβαση
 
 Ανοίξτε τον browser στο: **http://localhost:8080**
+
+##  Testing & Demo Credentials
+
+Χρησιμοποιήστε τους παρακάτω λογαριασμούς για δοκιμές:
+
+| Ρόλος | Username | Password    | Περιγραφή |
+|-------|----------|-------------|-----------|
+|  **Admin** | `admin` | `admin1234` | Πλήρης πρόσβαση διαχείρισης |
+|  **Pharmacist** | `user` | `123456789` | Βασικές λειτουργίες φαρμακοποιού |
+|  **Pharmacist** | `user6` | `123456789` | Εναλλακτικός φαρμακοποιός |
+
+> Οι κωδικοί παρέχονται μόνο για development περιβάλλον
 
 ---
 
@@ -232,21 +217,6 @@ fetch('http://localhost:8080/pharmacist/orders/add-bulk', {
 - 🎫 **JWT Token-based Authentication** (REST API)
 - 👥 **Role-Based Access Control** (RBAC)
 - 🔑 **Session Management**
-
----
-
-##  Testing & Demo Credentials
-
-Χρησιμοποιήστε τους παρακάτω λογαριασμούς για δοκιμές:
-
-| Ρόλος | Username | Password | Περιγραφή |
-|-------|----------|----------|-----------|
-|  **Admin** | `admin` | `123456789` | Πλήρης πρόσβαση διαχείρισης |
-|  **Pharmacist** | `user` | `123456789` | Βασικές λειτουργίες φαρμακοποιού |
-|  **Pharmacist** | `user6` | `123456789` | Εναλλακτικός φαρμακοποιός |
-
-> Οι κωδικοί παρέχονται μόνο για development περιβάλλον
-
 
 ---
 

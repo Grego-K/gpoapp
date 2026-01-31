@@ -114,6 +114,8 @@
 ##  Εγκατάσταση & Εκτέλεση
 
 Υπάρχουν δύο τρόποι να τρέξετε την εφαρμογή.
+Η πρώτη επιλογή με clone repo έχει όλα τα τελευταία commits 
+ενώ η δεύτερη επιλογή ένα release .jar αρχείο που είναι πιο stable.  
 
 ### Επιλογή Α: Γρήγορη Εκτέλεση (Quick Start - Προτεινόμενο)
 Δεν απαιτείται εγκατάσταση MySQL. Η βάση δημιουργείται αυτόματα στη RAM και τα δεδομένα φορτώνονται μέσω Flyway.
@@ -142,10 +144,13 @@
 
 Ανοίξτε τον browser στο: **http://localhost:8080**
 
-### Επιλογή Β: Εγκατάσταση απο release με δυνατότητα τοπικής βάσης δεδομένων.
-Μεταβείτε στο 
-https://github.com/Grego-K/gpoapp/releases
+---
 
+### Επιλογή Β: Εγκατάσταση απο release με δυνατότητα τοπικής βάσης δεδομένων.
+
+Μεταβείτε στο [https://github.com/Grego-K/gpoapp/releases](https://github.com/Grego-K/gpoapp/releases) και ακολουθήστε τις οδηγίες.
+
+---
 
 ##  Testing & Demo Credentials
 
@@ -190,7 +195,7 @@ curl -X GET http://localhost:8080/api/products \
 
 ###  Documentation
 
-- **[Πλήρης API Documentation](docs/API_DOCUMENTATION.md)** - Αναλυτική τεκμηρίωση όλων των endpoints
+- **[Πλήρης API Documentation](src/main/resources/docs/API_DOCUMENTATION.md)** - Αναλυτική τεκμηρίωση όλων των endpoints
 - **[Swagger UI](http://localhost:8080/swagger-ui/index.html)** - Interactive API testing
 - **[OpenAPI Spec](http://localhost:8080/v3/api-docs)** - JSON specification
 

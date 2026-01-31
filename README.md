@@ -138,10 +138,14 @@
 ./gradlew.bat bootRun --args="--spring.profiles.active=h2"
 ```
 
-
 ###  4. Πρόσβαση
 
 Ανοίξτε τον browser στο: **http://localhost:8080**
+
+### Επιλογή Β: Εγκατάσταση απο release με δυνατότητα τοπικής βάσης δεδομένων.
+Μεταβείτε στο 
+https://github.com/Grego-K/gpoapp/releases
+
 
 ##  Testing & Demo Credentials
 

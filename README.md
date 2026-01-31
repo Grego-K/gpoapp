@@ -14,8 +14,6 @@
 - [Tech Stack](#-tech-stack)
 - [Εγκατάσταση & Εκτέλεση](#-εγκατάσταση--εκτέλεση)
 - [REST API](#-rest-api)
-- [Testing Credentials](#-testing--demo-credentials)
-- [Screenshots](#-screenshots)
 - [Συνεισφορά](#-συνεισφορά)
 
 ---

@@ -65,6 +65,7 @@
                     <tr>
                         <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Προϊόν & Προμηθευτής</th>
                         <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Κατηγορία</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Αρχική Τιμή</th>
                         <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Τιμή GPO</th>
                         <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">Ενέργειες</th>
                     </tr>
@@ -76,9 +77,15 @@
                             <div class="text-[10px] font-bold text-blue-500 uppercase tracking-tight" th:text="${product.supplier.companyName}">Supplier</div>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-500" th:text="${product.category.name}">Category</td>
+
+                        <td class="px-6 py-4 text-right">
+                            <span class="text-xs text-gray-400 line-through" th:text="${#numbers.formatDecimal(product.basePrice, 1, 2) + ' €'}">0.00 €</span>
+                        </td>
+
                         <td class="px-6 py-4 text-right">
                             <span class="text-sm font-bold text-teal-600" th:text="${#numbers.formatDecimal(product.gpoPrice, 1, 2) + ' €'}">0.00 €</span>
                         </td>
+
                         <td class="px-6 py-4">
                             <div class="flex justify-center gap-2">
 
@@ -151,7 +158,6 @@
 <script th:inline="javascript">
     let cart = [];
 
-    // Διορθωμένη συνάρτηση που διαβάζει τα Data Attributes
     function handleAddToCart(button) {
         const id = button.getAttribute('data-id');
         const name = button.getAttribute('data-name');
@@ -163,7 +169,6 @@
         const qtyInput = document.getElementById('qty-' + id);
         const quantity = parseInt(qtyInput.value);
 
-        // Μετατροπή id σε String για ασφαλή σύγκριση αν χρειάζεται
         const existing = cart.find(i => i.productId == id);
 
         if (existing) {
@@ -222,7 +227,7 @@
         if (response.ok) {
             window.location.href = '/pharmacist/orders';
         } else {
-            alert('Σφάλμα κατά την καταχώρηση.');
+            alert('Σφάλμα κατά την καταχώρηση.'
         }
     }
 </script>

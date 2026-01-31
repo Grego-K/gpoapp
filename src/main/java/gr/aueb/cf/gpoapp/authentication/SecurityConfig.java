@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,8 +30,19 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                // Απενεργοποίηση CSRF - μάλλον γενικά θα το κρατήσουμε off μέχρι prod
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/h2-console/**", "/api/**")
+                        .disable()
+                )
+                // Ρύθμιση Headers για να επιτρέπεται το frame της H2 κονσόλας
+                .headers(headers -> headers
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
+                )
                 .authorizeHttpRequests(authorize -> authorize
+                        // H2 Console - Πρόσβαση χωρίς login για ευκολία του reviewer
+                        .requestMatchers("/h2-console/**").permitAll()
+
                         // Δημόσια urls και στατικά αρχεία
                         .requestMatchers("/", "/landing", "/login", "/register").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll()
@@ -41,7 +53,7 @@ public class SecurityConfig {
                         // Endpoints για το rest API
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/products/**").hasAnyRole("PHARMACIST", "ADMIN")
-                       .requestMatchers("/api/orders/**").hasRole("PHARMACIST")
+                        .requestMatchers("/api/orders/**").hasRole("PHARMACIST")
                         .requestMatchers("/api/users/me").authenticated()
 
                         // Κοινόχρηστο path για τον κατάλογο προϊόντων

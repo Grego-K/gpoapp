@@ -2,6 +2,7 @@ package gr.aueb.cf.gpoapp.dto;
 
 import lombok.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
@@ -34,5 +35,7 @@ public class ProductDTO {
     private String currentRebateLabel;
     private String nextRebateLabel;
 
-    private List<RebateTierDTO> rebateTiers;
+    // Αρχικοποίηση λίστας για να δέχεται τα δυναμικά πεδία της φόρμας
+    @Builder.Default
+    private List<RebateTierDTO> rebateTiers = new ArrayList<>();
 }

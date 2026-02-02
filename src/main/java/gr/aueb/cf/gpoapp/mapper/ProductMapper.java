@@ -59,14 +59,19 @@ public class ProductMapper {
 
     private void calculateRebateProgress(ProductDTO dto, Product product, int currentVol) {
         product.getRebateTiers().stream()
-                .filter(t -> t.getMinQuantity() > currentVol)
+                /* * Φιλτράρουμε για να βρούμε το Tier στο οποίο ανήκει η τρέχουσα ποσότητα.
+                 * Αν το currentVol είναι 0, θα πιάσει το πρώτο tier (π.χ. 0-50).
+                 */
+                .filter(t -> t.getMaxQuantity() == null || t.getMaxQuantity() >= currentVol)
                 .findFirst()
-                .ifPresentOrElse(nextTier -> {
-                    dto.setNextTierThreshold(nextTier.getMinQuantity());
-                    dto.setNextRebateLabel("-" + nextTier.getRebateAmount() + "€");
+                .ifPresentOrElse(tier -> {
+                    // Ο στόχος (threshold) είναι το MaxQuantity του τρέχοντος tier
+                    int target = (tier.getMaxQuantity() != null) ? tier.getMaxQuantity() : tier.getMinQuantity();
+                    dto.setNextTierThreshold(target);
+                    dto.setNextRebateLabel("-" + tier.getRebateAmount() + "€");
 
                     // Υπολογισμός % προόδου για το CSS width της μπάρας
-                    double percent = ((double) currentVol / nextTier.getMinQuantity()) * 100;
+                    double percent = ((double) currentVol / target) * 100;
                     dto.setProgressPercent((int) Math.min(percent, 100));
                 }, () -> {
                     // Αν έχουμε ξεπεράσει και το τελευταίο Tier

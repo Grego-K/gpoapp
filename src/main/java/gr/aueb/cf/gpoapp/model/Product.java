@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -39,14 +41,28 @@ public class Product extends AbstractEntity {
     @Column(nullable = false)
     private Integer stockQuantity;
 
+    // Προσθήκη για το Volume Tracking
+    @Column(nullable = false)
+    private Integer currentVolume = 0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier_id")
     private Supplier supplier;
 
-    // Σύνδεση με Category
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    // Σύνδεση με τα Rebate Tiers
+    // orphanRemoval = true σημαίνει ότι αν σβήσουμε ένα tier από τη λίστα, σβήνεται και από τη βάση
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RebateTier> rebateTiers = new ArrayList<>();
+
+    // Helper method για προσθήκη tier
+    public void addRebateTier(RebateTier tier) {
+        rebateTiers.add(tier);
+        tier.setProduct(this);
+    }
 
     public void setStockQuantity(Integer stockQuantity) {
         if (stockQuantity != null && stockQuantity < 0) {

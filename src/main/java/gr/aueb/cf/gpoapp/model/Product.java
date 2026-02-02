@@ -1,11 +1,7 @@
 package gr.aueb.cf.gpoapp.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import lombok.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,10 +37,6 @@ public class Product extends AbstractEntity {
     @Column(nullable = false)
     private Integer stockQuantity;
 
-    // Προσθήκη για το Volume Tracking
-    @Column(nullable = false)
-    private Integer currentVolume = 0;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier_id")
     private Supplier supplier;
@@ -53,42 +45,13 @@ public class Product extends AbstractEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    // Σύνδεση με τα Rebate Tiers
-    // orphanRemoval = true σημαίνει ότι αν σβήσουμε ένα tier από τη λίστα, σβήνεται και από τη βάση
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RebateTier> rebateTiers = new ArrayList<>();
 
-    // Helper method για προσθήκη tier
-    public void addRebateTier(RebateTier tier) {
-        rebateTiers.add(tier);
-        tier.setProduct(this);
-    }
-
-    public void setStockQuantity(Integer stockQuantity) {
-        if (stockQuantity != null && stockQuantity < 0) {
-            throw new IllegalArgumentException("Stock quantity cannot be negative");
-        }
-        this.stockQuantity = stockQuantity;
-    }
-
-    public void setBasePrice(BigDecimal basePrice) {
-        if (basePrice != null && basePrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Base price cannot be negative");
-        }
-        this.basePrice = basePrice;
-    }
-
-    public void setGpoPrice(BigDecimal gpoPrice) {
-        if (gpoPrice != null && gpoPrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("GPO price cannot be negative");
-        }
-        this.gpoPrice = gpoPrice;
-    }
+    // Helper methods ---> (addRebateTier, κλπ) πάνε στο RebateTier
 
     @PrePersist
     public void initializeUUID() {
-        if (uuid == null) {
-            uuid = UUID.randomUUID().toString();
-        }
+        if (uuid == null) uuid = UUID.randomUUID().toString();
     }
 }

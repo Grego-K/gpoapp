@@ -1,7 +1,7 @@
 package gr.aueb.cf.gpoapp.controller;
 
 import gr.aueb.cf.gpoapp.core.filters.ProductFilters;
-import gr.aueb.cf.gpoapp.model.Product;
+import gr.aueb.cf.gpoapp.dto.ProductDTO;
 import gr.aueb.cf.gpoapp.service.ICategoryService;
 import gr.aueb.cf.gpoapp.service.IProductService;
 import lombok.RequiredArgsConstructor;
@@ -30,18 +30,19 @@ public class ProductController {
         filters.setPage(page);
         filters.setPageSize(size);
 
-        // Λήψη του Page αντικειμένου από το service
-        Page<Product> productPage = productService.getFilteredProducts(filters);
+        /* * Καλούμε τη νέα μέθοδο που επιστρέφει Page<ProductDTO>.
+         * Αυτό διασφαλίζει ότι κάθε αντικείμενο στη λίστα έχει ήδη
+         * υπολογισμένο το volume και το progress percentage.
+         */
+        Page<ProductDTO> productPage = productService.getFilteredProductsDTO(filters);
 
-        /* * Στέλνουμε το productPage ως "products".
-         * Έτσι το Thymeleaf template μπορεί να καλέσει:
-         * 1. products.content (για τη λίστα)
-         * 2. products.totalPages (για τα κουμπιά pagination)
+        /* * Στέλνουμε το Page<ProductDTO> στο μοντέλο.
+         * Το Thymeleaf θα μπορεί να διαβάσει τα νέα πεδία (π.χ. progressPercent).
          */
         model.addAttribute("products", productPage);
         model.addAttribute("categories", categoryService.findAllCategories());
 
-        // Κρατάμε τα filters στο model για να παραμένουν οι τιμές στα inputs της φόρμας
+        // Κρατάμε τα filters για να μην χάνονται οι επιλογές του χρήστη στο UI
         model.addAttribute("filters", filters);
 
         return "products/list";

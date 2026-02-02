@@ -7,6 +7,9 @@ import gr.aueb.cf.gpoapp.model.ProductProgress;
 import gr.aueb.cf.gpoapp.model.RebateTier;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -45,10 +48,18 @@ public class ProductMapper {
         dto.setCurrentVolume(currentVol);
 
         // Mapping των Tiers στη λίστα του DTO
-        if (product.getRebateTiers() != null) {
+        if (product.getRebateTiers() != null && !product.getRebateTiers().isEmpty()) {
             dto.setRebateTiers(product.getRebateTiers().stream()
                     .map(this::mapToRebateTierDTO)
                     .collect(Collectors.toList()));
+
+            // Συλλογή όλων των ποσών εκπτώσεων ταξινομημένα
+            List<BigDecimal> amounts = product.getRebateTiers().stream()
+                    .map(RebateTier::getRebateAmount)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+            dto.setAllRebateAmounts(amounts);
 
             // Υπολογισμός επόμενου στόχου και ποσοστού μπάρας
             calculateRebateProgress(dto, product, currentVol);
@@ -58,14 +69,18 @@ public class ProductMapper {
     }
 
     private void calculateRebateProgress(ProductDTO dto, Product product, int currentVol) {
+        // 1. Εύρεση της τρέχουσας έκπτωσης (Current Rebate)
         product.getRebateTiers().stream()
-                /* * Φιλτράρουμε για να βρούμε το Tier στο οποίο ανήκει η τρέχουσα ποσότητα.
-                 * Αν το currentVol είναι 0, θα πιάσει το πρώτο tier (π.χ. 0-50).
-                 */
+                .filter(t -> currentVol >= t.getMinQuantity() && (t.getMaxQuantity() == null || currentVol <= t.getMaxQuantity()))
+                .findFirst()
+                .ifPresent(t -> dto.setCurrentRebateLabel(t.getRebateAmount().stripTrailingZeros().toPlainString() + "€"));
+
+        // 2. Εύρεση του Tier στο οποίο ανήκουμε ή του αμέσως επόμενου για το Threshold
+        product.getRebateTiers().stream()
                 .filter(t -> t.getMaxQuantity() == null || t.getMaxQuantity() >= currentVol)
                 .findFirst()
                 .ifPresentOrElse(tier -> {
-                    // Ο στόχος (threshold) είναι το MaxQuantity του τρέχοντος tier
+                    // Ο στόχος είναι το MaxQuantity του επιπέδου που διανύουμε
                     int target = (tier.getMaxQuantity() != null) ? tier.getMaxQuantity() : tier.getMinQuantity();
                     dto.setNextTierThreshold(target);
                     dto.setNextRebateLabel("-" + tier.getRebateAmount() + "€");

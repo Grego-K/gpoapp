@@ -9,16 +9,24 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IProductService {
+
+    Page<ProductDTO> getFilteredProductsDTO(ProductFilters filters);
+
     Product saveProduct(ProductDTO productDTO) throws Exception;
 
-    // Μετονομασία σε findAll για χρήση σε API
     List<Product> findAll();
 
     List<Product> findAllProducts();
+
     Product findProductById(Long id) throws Exception;
+
     Optional<Product> findProductByProductName(String productName);
+
     List<Product> findProductsBySupplierId(Long supplierId);
+
     Page<Product> getFilteredProducts(ProductFilters filters);
-    Product updateProduct(Long id, ProductDTO productDTO) throws Exception; // Product update
-    void deleteProduct(Long id) throws Exception; // Product delete
+
+    Product updateProduct(Long id, ProductDTO productDTO) throws Exception;
+
+    void deleteProduct(Long id) throws Exception;
 }

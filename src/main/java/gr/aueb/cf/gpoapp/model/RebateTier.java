@@ -1,5 +1,6 @@
 package gr.aueb.cf.gpoapp.model;
 
+import gr.aueb.cf.gpoapp.model.enums.PeriodType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -9,7 +10,12 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "rebate_tiers")
+@Table(
+        name = "rebate_tiers",
+        indexes = {
+                @Index(name = "idx_rebate_product_period", columnList = "product_id, periodType")
+        }
+)
 public class RebateTier {
 
     @Id
@@ -23,7 +29,7 @@ public class RebateTier {
     private Integer maxQuantity;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal rebateAmount; // Το ποσό που επιστρέφεται ανά τεμάχιο
+    private BigDecimal rebateAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -33,7 +39,4 @@ public class RebateTier {
     @JoinColumn(name = "product_id")
     private Product product;
 }
-
-enum PeriodType {
-    MONTH, QUARTER, YEAR
-}
+// Φέυγει απο εδώ --> Enums/PeriodType

@@ -82,8 +82,16 @@
                                     <div class="bg-teal-500 h-full transition-all duration-500"
                                          th:style="'width: ' + ${product.progressPercent} + '%'"></div>
                                 </div>
-                                <div class="mt-1 text-[9px] text-gray-400 font-medium italic">
-                                    Επόμενο: <span class="text-teal-600 font-bold" th:text="${product.nextRebateLabel}"></span>
+
+                                <div class="mt-2 flex items-center gap-1 text-[10px] font-bold uppercase tracking-tighter">
+                                    <span class="text-gray-400">Έκπτωση:</span>
+                                    <div class="flex gap-1 items-center">
+                                        <th:block th:each="amt, iter : ${product.allRebateAmounts}">
+                                            <span th:text="${#numbers.formatDecimal(amt, 1, 0)} + '€'"
+                                                  th:class="${product.currentRebateLabel == #numbers.formatDecimal(amt, 1, 0) + '€'} ? 'text-teal-600' : 'text-gray-300'"></span>
+                                            <span th:if="${!iter.last}" class="text-gray-200 font-normal">/</span>
+                                        </th:block>
+                                    </div>
                                 </div>
                             </div>
                             <div th:unless="${product.progressPercent != null}" class="text-[10px] text-gray-300 italic">

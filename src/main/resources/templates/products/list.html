@@ -61,6 +61,7 @@
                     <tr>
                         <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Προϊόν</th>
                         <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Rebate Progress</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Αρχική Τιμή</th>
                         <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Τιμή GPO</th>
                         <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">Ενέργειες</th>
                     </tr>
@@ -100,8 +101,15 @@
                         </td>
 
                         <td class="px-6 py-4 text-right">
-                            <div class="text-[10px] text-gray-400 line-through" th:text="${#numbers.formatDecimal(product.basePrice, 1, 2) + ' €'}"></div>
-                            <div class="text-sm font-black text-teal-600" th:text="${#numbers.formatDecimal(product.gpoPrice, 1, 2) + ' €'}"></div>
+                            <span class="text-xs font-bold text-gray-300 line-through tracking-tighter"
+                                  th:text="${#numbers.formatDecimal(product.basePrice, 1, 2) + ' €'}">
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4 text-right">
+                            <span class="text-sm font-black text-teal-600 tracking-tight"
+                                  th:text="${#numbers.formatDecimal(product.gpoPrice, 1, 2) + ' €'}">
+                            </span>
                         </td>
 
                         <td class="px-6 py-4">

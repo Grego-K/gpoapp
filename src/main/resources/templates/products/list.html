@@ -20,17 +20,14 @@
     <div th:if="${param.successUpdate}" class="mb-4 p-4 bg-blue-100 border-l-4 border-blue-500 text-blue-700 font-bold rounded shadow-sm">
         Το προϊόν ενημερώθηκε επιτυχώς.
     </div>
-    <div th:if="${param.errorDelete}" class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 font-bold rounded shadow-sm">
-        Σφάλμα κατά τη διαγραφή του προϊόντος.
-    </div>
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
             <h1 class="text-3xl font-bold text-gray-800">Κατάλογος Προϊόντων</h1>
-            <p class="text-gray-500 mt-1">Αναζητήστε προϊόντα και δείτε τις αποκλειστικές τιμές GPO.</p>
+            <p class="text-gray-500 mt-1 text-sm">Παρακολουθήστε την πρόοδο των Rebates σας σε πραγματικό χρόνο.</p>
         </div>
         <div sec:authorize="hasRole('ADMIN')">
-            <a th:href="@{/admin/products/add}" class="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all">
+            <a th:href="@{/admin/products/add}" class="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all text-sm">
                 + Νέο Προϊόν
             </a>
         </div>
@@ -50,22 +47,20 @@
                     <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:selected="${cat.id == filters.categoryId}"></option>
                 </select>
             </div>
-            <button type="submit" class="w-full py-2.5 bg-gray-800 text-white rounded-xl font-bold hover:bg-gray-900 transition-all shadow-md">
+            <button type="submit" class="w-full py-2.5 bg-gray-800 text-white rounded-xl font-bold hover:bg-gray-900 transition-all shadow-md text-sm">
                 Εφαρμογή Φίλτρων
             </button>
         </form>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-
         <div th:class="${#authorization.expression('hasRole(''PHARMACIST'')')} ? 'lg:col-span-3' : 'lg:col-span-4'">
             <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-gray-50 border-b border-gray-100">
                     <tr>
-                        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Προϊόν & Προμηθευτής</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Κατηγορία</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Αρχική Τιμή</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Προϊόν</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Rebate Progress</th>
                         <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Τιμή GPO</th>
                         <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">Ενέργειες</th>
                     </tr>
@@ -73,46 +68,52 @@
                     <tbody class="divide-y divide-gray-100">
                     <tr th:each="product : ${products.content}" class="hover:bg-gray-50/50 transition-colors group">
                         <td class="px-6 py-4">
-                            <div class="font-bold text-gray-800" th:text="${product.productName}">Product Name</div>
-                            <div class="text-[10px] font-bold text-blue-500 uppercase tracking-tight" th:text="${product.supplier.companyName}">Supplier</div>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-500" th:text="${product.category.name}">Category</td>
-
-                        <td class="px-6 py-4 text-right">
-                            <span class="text-xs text-gray-400 line-through" th:text="${#numbers.formatDecimal(product.basePrice, 1, 2) + ' €'}">0.00 €</span>
+                            <div class="font-bold text-gray-800 text-sm" th:text="${product.productName}">Product Name</div>
+                            <div class="text-[10px] font-bold text-blue-500 uppercase tracking-tight" th:text="${product.supplierName}">Supplier</div>
                         </td>
 
+                        <td class="px-6 py-4 min-w-[200px]">
+                            <div th:if="${product.progressPercent != null}">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-[10px] font-bold text-gray-400" th:text="${product.currentVolume} + ' / ' + ${product.nextTierThreshold} + ' τεμ.'"></span>
+                                    <span class="text-[10px] font-bold text-teal-600" th:text="${product.progressPercent} + '%'"></span>
+                                </div>
+                                <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                    <div class="bg-teal-500 h-full transition-all duration-500"
+                                         th:style="'width: ' + ${product.progressPercent} + '%'"></div>
+                                </div>
+                                <div class="mt-1 text-[9px] text-gray-400 font-medium italic">
+                                    Επόμενο: <span class="text-teal-600 font-bold" th:text="${product.nextRebateLabel}"></span>
+                                </div>
+                            </div>
+                            <div th:unless="${product.progressPercent != null}" class="text-[10px] text-gray-300 italic">
+                                Χωρίς ενεργά rebates
+                            </div>
+                        </td>
+
                         <td class="px-6 py-4 text-right">
-                            <span class="text-sm font-bold text-teal-600" th:text="${#numbers.formatDecimal(product.gpoPrice, 1, 2) + ' €'}">0.00 €</span>
+                            <div class="text-[10px] text-gray-400 line-through" th:text="${#numbers.formatDecimal(product.basePrice, 1, 2) + ' €'}"></div>
+                            <div class="text-sm font-black text-teal-600" th:text="${#numbers.formatDecimal(product.gpoPrice, 1, 2) + ' €'}"></div>
                         </td>
 
                         <td class="px-6 py-4">
                             <div class="flex justify-center gap-2">
-
                                 <div sec:authorize="hasRole('PHARMACIST')" class="flex items-center gap-2">
                                     <input type="number" th:id="'qty-' + ${product.id}" value="1" min="1"
                                            class="w-12 px-2 py-1 text-xs border rounded-lg text-center focus:ring-1 focus:ring-teal-500 outline-none">
-
                                     <button type="button"
                                             th:data-id="${product.id}"
                                             th:data-name="${product.productName}"
                                             th:data-price="${product.gpoPrice}"
                                             onclick="handleAddToCart(this)"
                                             class="p-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-all shadow-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg>
                                     </button>
                                 </div>
-
-                                <div sec:authorize="hasRole('ADMIN')" class="flex gap-2">
+                                <div sec:authorize="hasRole('ADMIN')">
                                     <a th:href="@{/admin/products/edit/{id}(id=${product.id})}"
-                                       class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-200 transition-all">Επεξεργασία</a>
-
-                                    <form th:action="@{/admin/products/delete/{id}(id=${product.id})}" method="post" class="inline">
-                                        <button type="submit" onclick="return confirm('Είστε σίγουροι ότι θέλετε να διαγράψετε το προϊόν;')"
-                                                class="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-bold hover:bg-red-200 transition-all">Διαγραφή</button>
-                                    </form>
+                                       class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-200 transition-all">Edit</a>
                                 </div>
-
                             </div>
                         </td>
                     </tr>
@@ -132,20 +133,20 @@
         <aside sec:authorize="hasRole('PHARMACIST')" class="lg:col-span-1">
             <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sticky top-8">
                 <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                    Νέα Παραγγελία
+                    <svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                    Καλάθι
                 </h2>
                 <div id="cart-items" class="space-y-4 mb-8 max-h-[400px] overflow-y-auto pr-2">
-                    <p class="text-gray-400 text-center text-sm py-8 border-2 border-dashed border-gray-50 rounded-xl">Το καλάθι είναι άδειο</p>
+                    <p class="text-gray-400 text-center text-sm py-8 border-2 border-dashed border-gray-50 rounded-xl">Άδειο καλάθι</p>
                 </div>
                 <div class="border-t border-gray-100 pt-6">
                     <div class="flex justify-between items-end mb-6">
-                        <span class="text-gray-400 font-bold text-[10px] uppercase">Σύνολο Συμφωνίας</span>
-                        <span id="cart-total" class="text-2xl font-bold text-teal-600">0.00 €</span>
+                        <span class="text-gray-400 font-bold text-[10px] uppercase">Σύνολο GPO</span>
+                        <span id="cart-total" class="text-2xl font-black text-teal-600">0.00 €</span>
                     </div>
                     <button onclick="submitBulkOrder()" id="btn-submit" disabled
-                            class="w-full py-4 bg-gray-200 text-gray-400 rounded-xl font-bold transition-all cursor-not-allowed">
-                        Μαζική Καταχώρηση
+                            class="w-full py-4 bg-gray-200 text-gray-400 rounded-xl font-bold transition-all cursor-not-allowed uppercase text-xs">
+                        Καταχώρηση
                     </button>
                 </div>
             </div>
@@ -168,9 +169,9 @@
     function addToCart(id, name, price) {
         const qtyInput = document.getElementById('qty-' + id);
         const quantity = parseInt(qtyInput.value);
+        if (isNaN(quantity) || quantity <= 0) return;
 
         const existing = cart.find(i => i.productId == id);
-
         if (existing) {
             existing.quantity += quantity;
         } else {
@@ -190,10 +191,10 @@
         const btn = document.getElementById('btn-submit');
 
         if (cart.length === 0) {
-            container.innerHTML = '<p class="text-gray-400 text-center text-sm py-8 border-2 border-dashed border-gray-50 rounded-xl">Το καλάθι είναι άδειο</p>';
+            container.innerHTML = '<p class="text-gray-400 text-center text-sm py-8 border-2 border-dashed border-gray-50 rounded-xl">Άδειο καλάθι</p>';
             totalEl.innerText = '0.00 €';
             btn.disabled = true;
-            btn.className = "w-full py-4 bg-gray-200 text-gray-400 rounded-xl font-bold transition-all cursor-not-allowed";
+            btn.className = "w-full py-4 bg-gray-200 text-gray-400 rounded-xl font-bold transition-all cursor-not-allowed uppercase text-xs";
             return;
         }
 
@@ -201,7 +202,7 @@
         container.innerHTML = cart.map(item => {
             total += (item.price * item.quantity);
             return `
-                <div class="flex justify-between items-start group p-2 hover:bg-gray-50 rounded-lg transition-all">
+                <div class="flex justify-between items-start p-2 hover:bg-gray-50 rounded-lg transition-all">
                     <div>
                         <div class="text-xs font-bold text-gray-800">${item.name}</div>
                         <div class="text-[10px] text-gray-400 font-bold">${item.quantity} x ${item.price.toFixed(2)}€</div>
@@ -214,7 +215,7 @@
 
         totalEl.innerText = total.toFixed(2) + ' €';
         btn.disabled = false;
-        btn.className = "w-full py-4 bg-teal-600 text-white rounded-xl font-bold shadow-lg hover:bg-teal-700 transition-all";
+        btn.className = "w-full py-4 bg-teal-600 text-white rounded-xl font-bold shadow-lg hover:bg-teal-700 transition-all uppercase text-xs";
     }
 
     async function submitBulkOrder() {
@@ -227,7 +228,7 @@
         if (response.ok) {
             window.location.href = '/pharmacist/orders';
         } else {
-            alert('Σφάλμα κατά την καταχώρηση.'
+            alert('Σφάλμα κατά την καταχώρηση.');
         }
     }
 </script>

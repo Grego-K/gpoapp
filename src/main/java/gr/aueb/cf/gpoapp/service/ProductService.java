@@ -170,4 +170,27 @@ public class ProductService implements IProductService {
     public List<Product> findProductsBySupplierId(Long supplierId) {
         return productRepository.findBySupplierId(supplierId);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> getFilteredProductsDTO(ProductFilters filters) {
+        String currentPeriod = getCurrentPeriodLabel();
+
+        // 1. Φέρνουμε τη σελίδα με τα Entities
+        Page<Product> productPage = productRepository.findFiltered(
+                filters.getProductName(),
+                filters.getCategoryId(),
+                filters.getPageable()
+        );
+
+        // 2. Μετατρέπουμε κάθε Product σε ProductDTO χρησιμοποιώντας τον Mapper
+        return productPage.map(product -> {
+            ProductProgress progress = progressRepository
+                    .findByProductIdAndPeriodLabel(product.getId(), currentPeriod)
+                    .orElse(null);
+
+            return productMapper.mapToProductDTO(product, progress);
+        });
+    }
 }
+

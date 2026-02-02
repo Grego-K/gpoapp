@@ -2,9 +2,9 @@ package gr.aueb.cf.gpoapp.service;
 
 import gr.aueb.cf.gpoapp.core.filters.ProductFilters;
 import gr.aueb.cf.gpoapp.dto.ProductDTO;
-import gr.aueb.cf.gpoapp.model.Category;
-import gr.aueb.cf.gpoapp.model.Product;
-import gr.aueb.cf.gpoapp.model.Supplier;
+import gr.aueb.cf.gpoapp.dto.RebateTierDTO;
+import gr.aueb.cf.gpoapp.model.*;
+import gr.aueb.cf.gpoapp.model.enums.PeriodType;
 import gr.aueb.cf.gpoapp.repository.CategoryRepository;
 import gr.aueb.cf.gpoapp.repository.ProductRepository;
 import gr.aueb.cf.gpoapp.repository.SupplierRepository;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import gr.aueb.cf.gpoapp.mapper.ProductMapper;
 import gr.aueb.cf.gpoapp.repository.ProductProgressRepository;
-import gr.aueb.cf.gpoapp.model.ProductProgress;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
 
@@ -77,13 +76,29 @@ public class ProductService implements IProductService {
 
         // Ανάκτηση Category και Supplier
         Category category = categoryRepository.findById(productDTO.getCategoryId())
-                .orElseThrow(() -> new Exception("Η κατηγορία με ID " + productDTO.getCategoryId() + " δεν βρέθηκε"));
+                .orElseThrow(() -> new Exception("Η κατηγορία δεν βρέθηκε"));
 
         Supplier supplier = supplierRepository.findById(productDTO.getSupplierId())
-                .orElseThrow(() -> new Exception("Ο προμηθευτής με ID " + productDTO.getSupplierId() + " δεν βρέθηκε"));
+                .orElseThrow(() -> new Exception("Ο προμηθευτής δεν βρέθηκε"));
 
         product.setCategory(category);
         product.setSupplier(supplier);
+
+        // --- Δυναμική αποθήκευση Rebate Tiers ---
+        if (productDTO.getRebateTiers() != null && !productDTO.getRebateTiers().isEmpty()) {
+            for (RebateTierDTO tierDTO : productDTO.getRebateTiers()) {
+                // Έλεγχος για κενά δεδομένα από τη φόρμα
+                if (tierDTO.getMinQuantity() != null && tierDTO.getRebateAmount() != null) {
+                    RebateTier tier = new RebateTier();
+                    tier.setMinQuantity(tierDTO.getMinQuantity());
+                    tier.setMaxQuantity(tierDTO.getMaxQuantity());
+                    tier.setRebateAmount(tierDTO.getRebateAmount());
+                    tier.setPeriodType(PeriodType.QUARTER); // Default
+                    tier.setProduct(product);
+                    product.getRebateTiers().add(tier);
+                }
+            }
+        }
 
         return productRepository.save(product);
     }
@@ -93,7 +108,7 @@ public class ProductService implements IProductService {
     public Product updateProduct(Long id, ProductDTO productDTO) throws Exception {
         // Βριίσκουμε το υπάρχον προϊόν
         Product product = productRepository.findByIdWithRelations(id)
-                .orElseThrow(() -> new Exception("Το προϊόν προς ενημέρωση δεν βρέθηκε"));
+                .orElseThrow(() -> new Exception("Το προϊόν δεν βρέθηκε"));
 
         // Ενημερώνουμε τα βασικά πεδία
         product.setProductName(productDTO.getProductName());
@@ -104,14 +119,29 @@ public class ProductService implements IProductService {
 
         // Ενημερώνουμε Category και Supplier αν έχουν αλλάξει
         Category category = categoryRepository.findById(productDTO.getCategoryId())
-                .orElseThrow(() -> new Exception("Η νέα κατηγορία δεν βρέθηκε"));
+                .orElseThrow(() -> new Exception("Η κατηγορία δεν βρέθηκε"));
         Supplier supplier = supplierRepository.findById(productDTO.getSupplierId())
-                .orElseThrow(() -> new Exception("Ο νέος προμηθευτής δεν βρέθηκε"));
+                .orElseThrow(() -> new Exception("Ο προμηθευτής δεν βρέθηκε"));
 
         product.setCategory(category);
         product.setSupplier(supplier);
 
-        // Αποθήκευση των αλλαγών
+        // Ενημέρωση Tiers
+        product.getRebateTiers().clear();
+        if (productDTO.getRebateTiers() != null) {
+            for (RebateTierDTO tierDTO : productDTO.getRebateTiers()) {
+                if (tierDTO.getMinQuantity() != null) {
+                    RebateTier tier = new RebateTier();
+                    tier.setMinQuantity(tierDTO.getMinQuantity());
+                    tier.setMaxQuantity(tierDTO.getMaxQuantity());
+                    tier.setRebateAmount(tierDTO.getRebateAmount());
+                    tier.setPeriodType(PeriodType.QUARTER);
+                    tier.setProduct(product);
+                    product.getRebateTiers().add(tier);
+                }
+            }
+        }
+
         return productRepository.save(product);
     }
 
@@ -120,7 +150,7 @@ public class ProductService implements IProductService {
     public void deleteProduct(Long id) throws Exception {
         // Ελέγχουμε αν υπάρχει πριν τη διαγραφή
         if (!productRepository.existsById(id)) {
-            throw new Exception("Το προϊόν με ID " + id + " δεν βρέθηκε για να διαγραφεί");
+            throw new Exception("Το προϊόν δεν βρέθηκε");
         }
         productRepository.deleteById(id);
     }
@@ -128,48 +158,36 @@ public class ProductService implements IProductService {
     // Υλοποίηση της findAll για το REST API
     @Override
     @Transactional(readOnly = true)
-    public List<Product> findAll() {
-        return productRepository.findAll();
-    }
+    public List<Product> findAll() { return productRepository.findAll(); }
 
     // Επιστρέφει σελιδοποιημένα και φιλτραρισμένα προϊόντα
     @Override
     @Transactional(readOnly = true)
     public Page<Product> getFilteredProducts(ProductFilters filters) {
-        return productRepository.findFiltered(
-                filters.getProductName(),
-                filters.getCategoryId(),
-                filters.getPageable()
-        );
+        return productRepository.findFiltered(filters.getProductName(),
+                filters.getCategoryId(), filters.getPageable());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Product> findAllProducts() {
-        return productRepository.findAllWithRelations();
-    }
+    public List<Product> findAllProducts() { return productRepository.findAllWithRelations(); }
 
     @Override
     @Transactional(readOnly = true)
     public Product findProductById(Long id) throws Exception {
-        // Χρήση της μεθόδου με Fetch Join για να αποφύγουμε LazyInit issues στο REST API
-        return productRepository.findByIdWithRelations(id)
-                .orElseThrow(() -> new Exception("Το προϊόν με ID " + id + " δεν βρέθηκε"));
+        return productRepository.findByIdWithRelations(id).orElseThrow(() ->
+                new Exception("Το προϊόν δεν βρέθηκε"));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<Product> findProductByProductName(String productName) {
-        return productRepository.findByProductNameContainingIgnoreCase(productName, null)
-                .stream()
-                .findFirst();
+        return productRepository.findByProductNameContainingIgnoreCase(productName, null).stream().findFirst();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Product> findProductsBySupplierId(Long supplierId) {
-        return productRepository.findBySupplierId(supplierId);
-    }
+    public List<Product> findProductsBySupplierId(Long supplierId) { return productRepository.findBySupplierId(supplierId); }
 
     @Override
     @Transactional(readOnly = true)
@@ -180,8 +198,7 @@ public class ProductService implements IProductService {
         Page<Product> productPage = productRepository.findFiltered(
                 filters.getProductName(),
                 filters.getCategoryId(),
-                filters.getPageable()
-        );
+                filters.getPageable());
 
         // 2. Μετατρέπουμε κάθε Product σε ProductDTO χρησιμοποιώντας τον Mapper
         return productPage.map(product -> {

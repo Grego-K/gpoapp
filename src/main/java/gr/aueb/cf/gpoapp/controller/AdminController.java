@@ -69,6 +69,8 @@ public class AdminController {
     @PostMapping("/products/save")
     public String saveProduct(@Valid @ModelAttribute("productDTO") ProductDTO productDTO,
                               BindingResult bindingResult, Model model) {
+
+        // Έλεγχος Validation (σταματάει τα NULL πριν πάνε στη βάση)
         if (bindingResult.hasErrors()) {
             // Σε περίπτωση σφάλματος, ξαναγεμίζουμε τις λίστες για τα dropdowns
             model.addAttribute("categories", categoryService.findAllCategories());
@@ -108,6 +110,9 @@ public class AdminController {
             productDTO.setStockQuantity(product.getStockQuantity());
             productDTO.setCategoryId(product.getCategory().getId());
             productDTO.setSupplierId(product.getSupplier().getId());
+
+            // Προσθήκη των Rebate Tiers στο DTO για το Edit
+            // productDTO.setRebateTiers(product.getRebateTiers().map(...));
 
             model.addAttribute("productDTO", productDTO);
             model.addAttribute("categories", categoryService.findAllCategories());

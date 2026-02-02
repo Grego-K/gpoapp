@@ -1,17 +1,18 @@
 package gr.aueb.cf.gpoapp.service;
 
 import gr.aueb.cf.gpoapp.core.filters.OrderFilters;
-import gr.aueb.cf.gpoapp.model.Order;
-import gr.aueb.cf.gpoapp.model.OrderItem;
-import gr.aueb.cf.gpoapp.model.Product;
-import gr.aueb.cf.gpoapp.model.User;
+import gr.aueb.cf.gpoapp.model.*;
 import gr.aueb.cf.gpoapp.model.enums.OrderStatus;
+import gr.aueb.cf.gpoapp.model.enums.PeriodType;
 import gr.aueb.cf.gpoapp.repository.OrderRepository;
+import gr.aueb.cf.gpoapp.repository.ProductProgressRepository;
 import gr.aueb.cf.gpoapp.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -21,6 +22,7 @@ public class OrderService implements IOrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final ProductProgressRepository progressRepository; // Προσθήκη για το Rebate System
 
     // Επιστρέφει τις παραγγελίες σε σελίδες, εφαρμόζοντας φίλτρα (status, date, supplier)
     @Override
@@ -92,6 +94,10 @@ public class OrderService implements IOrderService {
         }
 
         order.setStatus(OrderStatus.SUBMITTED);
+
+        // Ενημέρωση του Rebate Progress (Volume) για κάθε προϊόν της παραγγελίας
+        updateProductProgressAfterSubmission(order);
+
         orderRepository.save(order);
     }
 
@@ -107,5 +113,36 @@ public class OrderService implements IOrderService {
 
         order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
+    }
+
+    // Ενημερώνει το ProductProgress για κάθε προϊόν της παραγγελίας.
+    private void updateProductProgressAfterSubmission(Order order) {
+        String currentPeriod = getCurrentPeriodLabel();
+
+        for (OrderItem item : order.getOrderItems()) {
+            Product product = item.getProduct();
+
+            ProductProgress progress = progressRepository
+                    .findByProductIdAndPeriodLabel(product.getId(), currentPeriod)
+                    .orElseGet(() -> {
+                        ProductProgress newProgress = new ProductProgress();
+                        newProgress.setProduct(product);
+                        newProgress.setPeriodLabel(currentPeriod);
+                        newProgress.setPeriodType(PeriodType.QUARTER);
+                        newProgress.setVolume(0);
+                        return newProgress;
+                    });
+
+            progress.setVolume(progress.getVolume() + item.getQuantity());
+            progressRepository.save(progress);
+        }
+    }
+
+    private String getCurrentPeriodLabel() {
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+        int quarter = (month - 1) / 3 + 1;
+        return year + "_Q" + quarter;
     }
 }

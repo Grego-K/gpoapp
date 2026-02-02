@@ -114,8 +114,8 @@
 ##  Εγκατάσταση & Εκτέλεση
 
 Υπάρχουν δύο τρόποι να τρέξετε την εφαρμογή.
-Η πρώτη επιλογή με clone repo έχει όλα τα τελευταία commits 
-ενώ η δεύτερη επιλογή ένα release .jar αρχείο που είναι πιο stable.  
+Η πρώτη επιλογή με clone repo έχει όλα τα τελευταία commits
+ενώ η δεύτερη επιλογή ένα release .jar αρχείο που είναι πιο stable.
 
 ### Επιλογή Α: Γρήγορη Εκτέλεση (Quick Start - Προτεινόμενο)
 Δεν απαιτείται εγκατάσταση MySQL. Η βάση δημιουργείται αυτόματα στη RAM και τα δεδομένα φορτώνονται μέσω Flyway.
@@ -125,7 +125,7 @@
 ### 1. Κλωνοποίηση & Είσοδος στο φάκελο:
 Εισάγεται τις παρακάτω εντολές σε windows Powershell
    ```powershell
-   git clone [https://github.com/Grego-K/gpoapp.git]
+   git clone https://github.com/Grego-K/gpoapp.git
    cd gpoapp
    ```
 
@@ -148,7 +148,7 @@
 
 ### Επιλογή Β: Εγκατάσταση απο release με δυνατότητα τοπικής βάσης δεδομένων.
 
-Μεταβείτε στο [https://github.com/Grego-K/gpoapp/releases](https://github.com/Grego-K/gpoapp/releases) και ακολουθήστε τις οδηγίες.
+Μεταβείτε στο https://github.com/Grego-K/gpoapp/releases(https://github.com/Grego-K/gpoapp/releases) και ακολουθήστε τις οδηγίες.
 
 ---
 

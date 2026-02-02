@@ -12,6 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import gr.aueb.cf.gpoapp.mapper.ProductMapper;
+import gr.aueb.cf.gpoapp.repository.ProductProgressRepository;
+import gr.aueb.cf.gpoapp.model.ProductProgress;
+import java.time.LocalDate;
+import java.util.stream.Collectors;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +28,40 @@ public class ProductService implements IProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final SupplierRepository supplierRepository;
+    private final ProductProgressRepository progressRepository;
+    private final ProductMapper productMapper;
+
+    /**
+     * Επιστρέφει όλα τα προϊόντα converted σε DTOs,
+     * εμπλουτισμένα με το volume του τρέχοντος τριμήνου.
+     */
+    @Transactional(readOnly = true)
+    public List<ProductDTO> findAllProductsForCatalog() {
+        String currentPeriod = getCurrentPeriodLabel();
+
+        return productRepository.findAllWithRelations().stream()
+                .map(product -> {
+                    // Αναζήτηση προόδου για το συγκεκριμένο προϊόν και τρίμηνο
+                    ProductProgress progress = progressRepository
+                            .findByProductIdAndPeriodLabel(product.getId(), currentPeriod)
+                            .orElse(null); // Ο Mapper θα χειριστεί το null ως 0 volume!
+
+                    return productMapper.mapToProductDTO(product, progress);
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Helper μέθοδος που παράγει το label βάσει ημερομηνίας.
+     * Π.χ. Φεβρουάριος 2026 -> "2026_Q1"
+     */
+    private String getCurrentPeriodLabel() {
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+        int quarter = (month - 1) / 3 + 1;
+        return year + "_Q" + quarter;
+    }
 
     @Override
     @Transactional

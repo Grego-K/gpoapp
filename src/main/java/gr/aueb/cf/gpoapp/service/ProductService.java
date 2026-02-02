@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import gr.aueb.cf.gpoapp.mapper.ProductMapper;
 import gr.aueb.cf.gpoapp.repository.ProductProgressRepository;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -74,6 +75,9 @@ public class ProductService implements IProductService {
         Objects.requireNonNull(productDTO.getCategoryId(), "Category ID is required");
         Objects.requireNonNull(productDTO.getSupplierId(), "Supplier ID is required");
 
+        // Έλεγχος για αλληλοκάλυψη κλιμάκων (Overlap Validation)
+        validateRebateTiers(productDTO.getRebateTiers());
+
         Product product = new Product();
 
         // Mapping πεδίων
@@ -110,6 +114,45 @@ public class ProductService implements IProductService {
         }
 
         return productRepository.save(product);
+    }
+
+    /**
+     * Ελέγχει αν οι κλίμακες rebate είναι έγκυρες και αν αλληλοκαλύπτονται.
+     */
+    private void validateRebateTiers(List<RebateTierDTO> tiers) throws Exception {
+        if (tiers == null || tiers.isEmpty()) return;
+
+        List<RebateTierDTO> activeTiers = tiers.stream()
+                .filter(t -> t.getMinQuantity() != null && t.getRebateAmount() != null)
+                .sorted(Comparator.comparing(RebateTierDTO::getMinQuantity))
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < activeTiers.size(); i++) {
+            RebateTierDTO current = activeTiers.get(i);
+
+            // Έλεγχος αν η αρχή είναι μεγαλύτερη από το τέλος
+            if (current.getMaxQuantity() != null && current.getMinQuantity() > current.getMaxQuantity()) {
+                throw new Exception("Σφάλμα στην κλίμακα " + current.getMinQuantity() + "-" + current.getMaxQuantity() +
+                        ": Η αρχή κλίμακας δεν μπορεί να είναι μεγαλύτερη από το τέλος.");
+            }
+
+            // Έλεγχος για Overlap με την επόμενη κλίμακα
+            if (i < activeTiers.size() - 1) {
+                RebateTierDTO next = activeTiers.get(i + 1);
+
+                // Αν η τρέχουσα κλίμακα δεν έχει τέλος (null), τότε αναγκαστικά καλύπτει τα πάντα μετά
+                if (current.getMaxQuantity() == null) {
+                    throw new Exception("Σφάλμα: Η κλίμακα που ξεκινά από " + current.getMinQuantity() +
+                            " δεν έχει τέλος, οπότε αλληλοκαλύπτεται με την επόμενη.");
+                }
+
+                // Αν το τέλος της τρέχουσας είναι μεγαλύτερο ή ίσο με την αρχή της επόμενης
+                if (current.getMaxQuantity() >= next.getMinQuantity()) {
+                    throw new Exception("Σφάλμα: Η κλίμακα (έως " + current.getMaxQuantity() +
+                            ") αλληλοκαλύπτεται με την επόμενη (από " + next.getMinQuantity() + ").");
+                }
+            }
+        }
     }
 
     @Override

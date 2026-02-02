@@ -48,8 +48,11 @@ public class ProductDTO {
     private Integer currentVolume;
     private Integer nextTierThreshold;
     private Integer progressPercent;
-    private String currentRebateLabel;
+    private String currentRebateLabel; // Π.χ. "2€"
     private String nextRebateLabel;
+
+    // Λίστα με όλα τα ποσά εκπτώσεων για το UI πχ "2 / 3 / 4 €"
+    private List<BigDecimal> allRebateAmounts;
 
     // Αρχικοποίηση λίστας για να δέχεται τα δυναμικά πεδία της φόρμας
     @Builder.Default

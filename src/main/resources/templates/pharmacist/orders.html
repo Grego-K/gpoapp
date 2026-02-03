@@ -14,7 +14,7 @@
   <div class="flex justify-between items-end mb-8">
     <div>
       <h1 class="text-3xl font-bold text-gray-800">Οι Παραγγελίες μου</h1>
-      <p class="text-gray-500 mt-1">Παρακολουθήστε το ιστορικό και την κατάσταση των συμφωνιών σας.</p>
+      <p class="text-gray-500 mt-1">Παρακολουθήστε το ιστορικό και το εκτιμώμενο rebate των αγορών σας.</p>
     </div>
     <a th:href="@{/products}" class="px-6 py-3 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
       + Νέα Παραγγελία
@@ -57,43 +57,51 @@
 
   <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
     <table class="w-full text-left border-collapse">
-      <thead class="bg-gray-50 border-bottom-2 border-gray-100">
+      <thead class="bg-gray-50 border-b-2 border-gray-100">
       <tr>
         <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">ID & Ημερομηνία</th>
         <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Κατάσταση</th>
-        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Προϊόντα</th>
         <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Προμηθευτές</th>
-        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Σύνολο</th>
+        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Σύνολο GPO</th>
+        <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Επιστροφή (Rebate)</th>
         <th class="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">Ενέργειες</th>
       </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
-      <tr th:each="order : ${orders}" class="hover:bg-teal-50/30 transition-colors">
+      <tr th:each="order : ${orders.content}" class="hover:bg-teal-50/30 transition-colors group">
         <td class="px-6 py-4">
           <div class="font-bold text-blue-700 text-sm" th:text="${'#ORD-' + order.id}">#ORD-1</div>
           <div class="text-xs text-gray-400" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy')}">28 Ιαν 2026</div>
         </td>
         <td class="px-6 py-4">
-                        <span th:classappend="${order.status.name() == 'PENDING' ? 'bg-amber-100 text-amber-700' : (order.status.name() == 'CANCELLED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700')}"
-                              class="px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 w-fit">
-                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-                            <span th:text="${order.status}">Status</span>
-                        </span>
+            <span th:classappend="${order.status == 'PENDING' ? 'bg-amber-100 text-amber-700' : (order.status == 'CANCELLED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700')}"
+                  class="px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 w-fit">
+                <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                <span th:text="${order.status}">Status</span>
+            </span>
         </td>
-        <td class="px-6 py-4 text-sm text-gray-600 font-medium" th:text="${order.orderItems.size() + ' είδη'}">4 είδη</td>
         <td class="px-6 py-4">
           <div class="flex flex-wrap gap-1">
-            <span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[9px] font-bold uppercase" th:each="supplierName : ${order.distinctSuppliers}" th:text="${supplierName}">Supplier</span>
+            <span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[9px] font-bold uppercase"
+                  th:each="supplierName : ${order.supplierNames}"
+                  th:text="${supplierName}">Supplier</span>
           </div>
         </td>
         <td class="px-6 py-4 text-right">
-          <div class="font-bold text-teal-600" th:text="${#numbers.formatDecimal(order.getTotalAmount(), 1, 2) + ' €'}">0.00 €</div>
+          <div class="font-bold text-gray-700 text-sm" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2) + ' €'}">0.00 €</div>
+          <div class="text-[10px] text-gray-400" th:text="${order.itemCount + ' είδη'}">0 είδη</div>
+        </td>
+        <td class="px-6 py-4 text-right">
+          <div class="font-black text-amber-600 text-sm"
+               th:text="${#numbers.formatDecimal(order.totalEstimatedRebate, 1, 2) + ' €'}">0.00 €</div>
+          <div class="text-[9px] font-bold text-amber-400 uppercase tracking-tighter">Εκτιμώμενο</div>
         </td>
         <td class="px-6 py-4 text-center">
           <div class="flex gap-2 justify-center">
-            <a th:href="@{/pharmacist/orders/{uuid}(uuid=${order.uuid})}" class="px-3 py-1.5 border border-blue-600 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white transition-all">Προβολή</a>
+            <a th:href="@{/pharmacist/orders/{uuid}(uuid=${order.uuid})}"
+               class="px-3 py-1.5 border border-blue-600 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white transition-all shadow-sm">Προβολή</a>
 
-            <form th:if="${order.status.name() == 'PENDING'}"
+            <form th:if="${order.status == 'PENDING'}"
                   th:action="@{/pharmacist/orders/{uuid}/cancel(uuid=${order.uuid})}"
                   method="post" class="inline">
               <button type="submit"
@@ -105,8 +113,8 @@
           </div>
         </td>
       </tr>
-      <tr th:if="${#lists.isEmpty(orders)}">
-        <td colspan="6" class="px-6 py-10 text-center text-gray-400 italic">
+      <tr th:if="${#lists.isEmpty(orders.content)}">
+        <td colspan="6" class="px-6 py-10 text-center text-gray-400 italic border-2 border-dashed border-gray-50 rounded-b-2xl">
           Δεν βρέθηκαν παραγγελίες με τα συγκεκριμένα κριτήρια.
         </td>
       </tr>
@@ -114,11 +122,11 @@
     </table>
   </div>
 
-  <div th:if="${orderPage.totalPages > 1}" class="flex justify-center gap-2 py-8">
-    <a th:each="i : ${#numbers.sequence(0, orderPage.totalPages - 1)}"
+  <div th:if="${orders.totalPages > 1}" class="flex justify-center gap-2 py-8">
+    <a th:each="i : ${#numbers.sequence(0, orders.totalPages - 1)}"
        th:href="@{/pharmacist/orders(page=${i}, status=${filters.status}, dateFrom=${filters.dateFrom}, supplierId=${filters.supplierId})}"
        th:text="${i + 1}"
-       th:class="${orderPage.number == i} ? 'px-4 py-2 bg-teal-600 text-white rounded-xl font-bold shadow-md' : 'px-4 py-2 bg-white text-gray-600 border border-gray-100 rounded-xl hover:bg-gray-50 transition-all'">
+       th:class="${orders.number == i} ? 'px-4 py-2 bg-teal-600 text-white rounded-xl font-bold shadow-md' : 'px-4 py-2 bg-white text-gray-600 border border-gray-100 rounded-xl hover:bg-gray-50 transition-all'">
     </a>
   </div>
 

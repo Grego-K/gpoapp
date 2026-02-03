@@ -173,10 +173,13 @@
 <div th:replace="~{fragments/layout :: footer}"></div>
 
 <script th:inline="javascript">
-    // Φόρτωση του καλαθιού από το localStorage κατά την εκκίνηση
-    let cart = JSON.parse(localStorage.getItem('pharmaCart')) || [];
+    /*<![CDATA[*/
+    // Χρήση του username για μοναδικό καλάθι ανά χρήστη
+    const currentUser = /*[[${#authentication.name}]]*/ 'guest';
+    const cartKey = 'pharmaCart_' + currentUser;
 
-    // Εκτέλεση μόλις φορτώσει το DOM για να εμφανιστούν τα αποθηκευμένα αντικείμενα
+    let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+
     document.addEventListener('DOMContentLoaded', () => {
         updateCartUI();
     });
@@ -212,8 +215,7 @@
         const totalEl = document.getElementById('cart-total');
         const btn = document.getElementById('btn-submit');
 
-        // Αποθήκευση στο localStorage κάθε φορά που αλλάζει το καλάθι
-        localStorage.setItem('pharmaCart', JSON.stringify(cart));
+        localStorage.setItem(cartKey, JSON.stringify(cart));
 
         if (cart.length === 0) {
             container.innerHTML = '<p class="text-gray-400 text-center text-sm py-8 border-2 border-dashed border-gray-50 rounded-xl">Άδειο καλάθι</p>';
@@ -245,19 +247,22 @@
 
     async function submitBulkOrder() {
         const payload = cart.map(i => ({ productId: i.productId, quantity: i.quantity }));
+
         const response = await fetch('/pharmacist/orders/add-bulk', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
+
         if (response.ok) {
-            // Καθαρισμός του localStorage μετά από επιτυχημένη παραγγελία
-            localStorage.removeItem('pharmaCart');
+            localStorage.removeItem(cartKey);
             window.location.href = '/pharmacist/orders';
         } else {
-            alert('Σφάλμα κατά την καταχώρηση.');
+            const errorText = await response.text();
+            alert('Σφάλμα κατά την καταχώρηση: ' + errorText);
         }
     }
+    /*]]>*/
 </script>
 </body>
 </html>

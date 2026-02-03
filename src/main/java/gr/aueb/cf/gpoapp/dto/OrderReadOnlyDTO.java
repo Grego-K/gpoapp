@@ -18,8 +18,13 @@ public class OrderReadOnlyDTO {
     private String uuid;
     private String status;
     private BigDecimal totalAmount;
-    private LocalDateTime createdAt; // Αλλαγή σε LocalDateTime για να ταιριάζει με το Entity
+    private LocalDateTime createdAt;
     private List<String> supplierNames;
     private int itemCount;
+
+    // Συνολική εκτιμώμενη επιστροφή της παραγγελίας
+    private BigDecimal totalEstimatedRebate;
+
+    // Λίστα με τα DTOs των αντικειμένων
     private List<OrderItemReadOnlyDTO> items;
 }

@@ -1,6 +1,8 @@
 package gr.aueb.cf.gpoapp.service;
 
 import gr.aueb.cf.gpoapp.core.filters.OrderFilters;
+import gr.aueb.cf.gpoapp.dto.OrderReadOnlyDTO;
+import gr.aueb.cf.gpoapp.mapper.OrderMapper;
 import gr.aueb.cf.gpoapp.model.*;
 import gr.aueb.cf.gpoapp.model.enums.OrderStatus;
 import gr.aueb.cf.gpoapp.model.enums.PeriodType;
@@ -23,6 +25,7 @@ public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ProductProgressRepository progressRepository; // Προσθήκη για το Rebate System
+    private final OrderMapper orderMapper; // Inject τον Mapper για το real-time rebate calculation
 
     // Επιστρέφει τις παραγγελίες σε σελίδες, εφαρμόζοντας φίλτρα (status, date, supplier)
     @Override
@@ -42,12 +45,31 @@ public class OrderService implements IOrderService {
         );
     }
 
+    /**
+     * Υλοποίηση που επιστρέφει DTOs.
+     * Εδώ γίνεται η κλήση του Mapper ο οποίος χρησιμοποιεί το RebateSettlementService
+     * για να υπολογίσει on-the-fly την επιστροφή χρημάτων.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrderReadOnlyDTO> findAllOrdersDTOByPharmacist(User user, OrderFilters filters) {
+        Page<Order> ordersPage = findAllOrdersByPharmacist(user, filters);
+        return ordersPage.map(orderMapper::mapToOrderReadOnlyDTO);
+    }
+
     // Επιστρέφει τις λεπτομέρειες μιας παραγγελίας χρησιμοποιώντας Deep Fetch
     @Override
     @Transactional(readOnly = true)
     public Order findOrderByUuid(String uuid) {
         return orderRepository.findByUuidWithItems(uuid)
                 .orElseThrow(() -> new RuntimeException("Η παραγγελία με UUID: " + uuid + " δεν βρέθηκε"));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public OrderReadOnlyDTO findOrderDTOByUuid(String uuid) {
+        Order order = findOrderByUuid(uuid);
+        return orderMapper.mapToOrderReadOnlyDTO(order);
     }
 
     // Προσθήκη προϊόντος σε active order με JOIN FETCH των orderItems

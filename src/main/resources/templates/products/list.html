@@ -173,7 +173,13 @@
 <div th:replace="~{fragments/layout :: footer}"></div>
 
 <script th:inline="javascript">
-    let cart = [];
+    // Φόρτωση του καλαθιού από το localStorage κατά την εκκίνηση
+    let cart = JSON.parse(localStorage.getItem('pharmaCart')) || [];
+
+    // Εκτέλεση μόλις φορτώσει το DOM για να εμφανιστούν τα αποθηκευμένα αντικείμενα
+    document.addEventListener('DOMContentLoaded', () => {
+        updateCartUI();
+    });
 
     function handleAddToCart(button) {
         const id = button.getAttribute('data-id');
@@ -205,6 +211,9 @@
         const container = document.getElementById('cart-items');
         const totalEl = document.getElementById('cart-total');
         const btn = document.getElementById('btn-submit');
+
+        // Αποθήκευση στο localStorage κάθε φορά που αλλάζει το καλάθι
+        localStorage.setItem('pharmaCart', JSON.stringify(cart));
 
         if (cart.length === 0) {
             container.innerHTML = '<p class="text-gray-400 text-center text-sm py-8 border-2 border-dashed border-gray-50 rounded-xl">Άδειο καλάθι</p>';
@@ -242,6 +251,8 @@
             body: JSON.stringify(payload)
         });
         if (response.ok) {
+            // Καθαρισμός του localStorage μετά από επιτυχημένη παραγγελία
+            localStorage.removeItem('pharmaCart');
             window.location.href = '/pharmacist/orders';
         } else {
             alert('Σφάλμα κατά την καταχώρηση.');

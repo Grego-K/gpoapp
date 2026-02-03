@@ -75,8 +75,8 @@ public class ProductService implements IProductService {
         Objects.requireNonNull(productDTO.getCategoryId(), "Category ID is required");
         Objects.requireNonNull(productDTO.getSupplierId(), "Supplier ID is required");
 
-        // Έλεγχος για αλληλοκάλυψη κλιμάκων (Overlap Validation)
-        validateRebateTiers(productDTO.getRebateTiers());
+        // Έλεγχος για αλληλοκάλυψη κλιμάκων, validation και stock
+        validateRebateTiers(productDTO.getRebateTiers(), productDTO.getStockQuantity());
 
         Product product = new Product();
 
@@ -117,9 +117,10 @@ public class ProductService implements IProductService {
     }
 
     /**
-     * Ελέγχει αν οι κλίμακες rebate είναι έγκυρες και αν αλληλοκαλύπτονται.
+     * Ελέγχει αν οι κλίμακες rebate είναι έγκυρες, αν αλληλοκαλύπτονται
+     * και αν υπερβαίνουν το διαθέσιμο απόθεμα.
      */
-    private void validateRebateTiers(List<RebateTierDTO> tiers) throws Exception {
+    private void validateRebateTiers(List<RebateTierDTO> tiers, Integer totalStock) throws Exception {
         if (tiers == null || tiers.isEmpty()) return;
 
         List<RebateTierDTO> activeTiers = tiers.stream()
@@ -130,21 +131,27 @@ public class ProductService implements IProductService {
         for (int i = 0; i < activeTiers.size(); i++) {
             RebateTierDTO current = activeTiers.get(i);
 
+            //  Υποχρεωτικό τέλος κλίμακας (Business Logic: No open-ended tiers)
+            if (current.getMaxQuantity() == null) {
+                throw new Exception("Σφάλμα στην κλίμακα από " + current.getMinQuantity() +
+                        ": Πρέπει οπωσδήποτε να ορίσετε 'Τέλος κλίμακας έως και'.");
+            }
+
             // Έλεγχος αν η αρχή είναι μεγαλύτερη από το τέλος
-            if (current.getMaxQuantity() != null && current.getMinQuantity() > current.getMaxQuantity()) {
+            if (current.getMinQuantity() > current.getMaxQuantity()) {
                 throw new Exception("Σφάλμα στην κλίμακα " + current.getMinQuantity() + "-" + current.getMaxQuantity() +
                         ": Η αρχή κλίμακας δεν μπορεί να είναι μεγαλύτερη από το τέλος.");
+            }
+
+            // Έλεγχος αν το τέλος κλίμακας υπερβαίνει το συνολικό Stock
+            if (totalStock != null && current.getMaxQuantity() > totalStock) {
+                throw new Exception("Σφάλμα: Το τέλος της κλίμακας (" + current.getMaxQuantity() +
+                        ") δεν μπορεί να υπερβαίνει το συνολικό απόθεμα του προϊόντος (" + totalStock + ").");
             }
 
             // Έλεγχος για Overlap με την επόμενη κλίμακα
             if (i < activeTiers.size() - 1) {
                 RebateTierDTO next = activeTiers.get(i + 1);
-
-                // Αν η τρέχουσα κλίμακα δεν έχει τέλος (null), τότε αναγκαστικά καλύπτει τα πάντα μετά
-                if (current.getMaxQuantity() == null) {
-                    throw new Exception("Σφάλμα: Η κλίμακα που ξεκινά από " + current.getMinQuantity() +
-                            " δεν έχει τέλος, οπότε αλληλοκαλύπτεται με την επόμενη.");
-                }
 
                 // Αν το τέλος της τρέχουσας είναι μεγαλύτερο ή ίσο με την αρχή της επόμενης
                 if (current.getMaxQuantity() >= next.getMinQuantity()) {

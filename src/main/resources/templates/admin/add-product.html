@@ -5,126 +5,154 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PharmaGPO - Νέο Προϊόν</title>
   <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="min-h-screen flex flex-col bg-gray-50">
+  <!DOCTYPE html>
+  <html xmlns:th="http://www.thymeleaf.org" lang="el">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaGPO - Νέο Προϊόν</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen flex flex-col bg-gray-50">
 
-<div th:replace="~{fragments/layout :: header}"></div>
+  <div th:replace="~{fragments/layout :: header}"></div>
 
-<main class="flex-1 flex items-center justify-center p-6 py-12">
-  <div class="w-full max-w-4xl bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
-    <div class="mb-8 border-b pb-4">
-      <h1 class="text-3xl font-bold text-gray-800">Εισαγωγή Προϊόντος</h1>
-      <p class="text-gray-500 text-sm">Ορίστε τα στοιχεία και τις κλίμακες rebate για το νέο προϊόν.</p>
-    </div>
-
-    <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded" th:text="${errorMessage}"></div>
-
-    <form th:action="@{/admin/products/save}" th:object="${productDTO}" method="post" class="space-y-6">
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="md:col-span-2">
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Όνομα Προϊόντος</label>
-          <input type="text" th:field="*{productName}" class="w-full rounded-lg border-gray-300 focus:ring-blue-500"/>
-          <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('productName')}" th:errors="*{productName}"></p>
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Περιγραφή</label>
-          <textarea th:field="*{description}" rows="2" class="w-full rounded-lg border-gray-300"></textarea>
-        </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Αρχική Τιμή (€)</label>
-          <input type="number" step="0.01" th:field="*{basePrice}" class="w-full rounded-lg border-gray-300"/>
-          <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('basePrice')}" th:errors="*{basePrice}"></p>
-        </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Τιμή GPO (€)</label>
-          <input type="number" step="0.01" th:field="*{gpoPrice}" class="w-full rounded-lg border-gray-300"/>
-          <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('gpoPrice')}" th:errors="*{gpoPrice}"></p>
-        </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Απόθεμα (Stock)</label>
-          <input type="number" th:field="*{stockQuantity}" class="w-full rounded-lg border-gray-300"/>
-          <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('stockQuantity')}" th:errors="*{stockQuantity}"></p>
-        </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Κατηγορία</label>
-          <select th:field="*{categoryId}" class="w-full rounded-lg border-gray-300">
-            <option value="">Επιλέξτε...</option>
-            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
-          </select>
-          <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></p>
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Προμηθευτής</label>
-          <select th:field="*{supplierId}" class="w-full rounded-lg border-gray-300">
-            <option value="">Επιλέξτε...</option>
-            <option th:each="sup : ${suppliers}" th:value="${sup.id}" th:text="${sup.companyName}"></option>
-          </select>
-          <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('supplierId')}" th:errors="*{supplierId}"></p>
-        </div>
+  <main class="flex-1 flex items-center justify-center p-6 py-12">
+    <div class="w-full max-w-4xl bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
+      <div class="mb-8 border-b pb-4">
+        <h1 class="text-3xl font-bold text-gray-800">Εισαγωγή Προϊόντος</h1>
+        <p class="text-gray-500 text-sm">Ορίστε τα στοιχεία και τις κλίμακες rebate για το νέο προϊόν.</p>
       </div>
 
-      <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100 mt-8">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold text-blue-800">Κλίμακες Rebate (Quarterly)</h3>
-          <button type="button" onclick="addTier()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-all shadow-sm text-sm">
-            + Προσθήκη Tier
+      <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded" th:text="${errorMessage}"></div>
+
+      <form th:action="@{/admin/products/save}" th:object="${productDTO}" method="post" class="space-y-6">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Όνομα Προϊόντος</label>
+            <input type="text" th:field="*{productName}" class="w-full rounded-lg border-gray-300 focus:ring-blue-500"/>
+            <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('productName')}" th:errors="*{productName}"></p>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Περιγραφή</label>
+            <textarea th:field="*{description}" rows="2" class="w-full rounded-lg border-gray-300"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Αρχική Τιμή (€)</label>
+            <input type="number" step="0.01" th:field="*{basePrice}" class="w-full rounded-lg border-gray-300"/>
+            <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('basePrice')}" th:errors="*{basePrice}"></p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Τιμή GPO (€)</label>
+            <input type="number" step="0.01" th:field="*{gpoPrice}" class="w-full rounded-lg border-gray-300"/>
+            <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('gpoPrice')}" th:errors="*{gpoPrice}"></p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Απόθεμα (Stock)</label>
+            <input type="number" th:field="*{stockQuantity}" class="w-full rounded-lg border-gray-300"/>
+            <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('stockQuantity')}" th:errors="*{stockQuantity}"></p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Κατηγορία</label>
+            <select th:field="*{categoryId}" class="w-full rounded-lg border-gray-300">
+              <option value="">Επιλέξτε...</option>
+              <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+            </select>
+            <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></p>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Προμηθευτής</label>
+            <select th:field="*{supplierId}" class="w-full rounded-lg border-gray-300">
+              <option value="">Επιλέξτε...</option>
+              <option th:each="sup : ${suppliers}" th:value="${sup.id}" th:text="${sup.companyName}"></option>
+            </select>
+            <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('supplierId')}" th:errors="*{supplierId}"></p>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100 mt-8">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-blue-800">Κλίμακες Rebate (Quarterly)</h3>
+            <button type="button" onclick="addTier()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-all shadow-sm text-sm">
+              + Προσθήκη Tier
+            </button>
+          </div>
+
+          <div id="tiers-container" class="space-y-3">
+            <th:block th:each="tier, iterStat : *{rebateTiers}">
+              <div class="grid grid-cols-4 gap-4 p-4 bg-white rounded-xl border border-blue-100 items-end shadow-sm">
+                <div>
+                  <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Αρχή κλίμακας από:</label>
+                  <input type="number" th:field="*{rebateTiers[__${iterStat.index}__].minQuantity}" class="w-full rounded-lg border-gray-200 text-sm" required>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Τέλος κλίμακας έως και:</label>
+                  <input type="number" th:field="*{rebateTiers[__${iterStat.index}__].maxQuantity}" class="w-full rounded-lg border-gray-200 text-sm">
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Έκπτωση (€/τεμ)</label>
+                  <input type="number" step="0.01" th:field="*{rebateTiers[__${iterStat.index}__].rebateAmount}" class="w-full rounded-lg border-gray-200 text-sm" required>
+                </div>
+                <button type="button" onclick="this.parentElement.remove()" class="p-2.5 text-red-500 hover:bg-red-50 rounded-lg transition-all">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+              </div>
+            </th:block>
+          </div>
+        </div>
+
+        <div class="pt-6">
+          <button type="submit" class="w-full py-4 bg-gray-900 text-white rounded-xl font-bold shadow-lg hover:bg-black transition-all">
+            Ολοκλήρωση Καταχώρησης
           </button>
         </div>
+      </form>
+    </div>
+  </main>
 
-        <div id="tiers-container" class="space-y-3">
-        </div>
-      </div>
+  <script th:inline="javascript">
+    /* Ξεκινάμε το index από τον αριθμό των tiers που ήδη υπάρχουν (χρήσιμο μετά από σφάλμα) */
+    let tierIndex = [[${productDTO.rebateTiers != null ? productDTO.rebateTiers.size() : 0}]];
 
-      <div class="pt-6">
-        <button type="submit" class="w-full py-4 bg-gray-900 text-white rounded-xl font-bold shadow-lg hover:bg-black transition-all">
-          Ολοκλήρωση Καταχώρησης
-        </button>
-      </div>
-    </form>
-  </div>
-</main>
+    function addTier() {
+      const container = document.getElementById('tiers-container');
+      const div = document.createElement('div');
+      div.className = "grid grid-cols-4 gap-4 p-4 bg-white rounded-xl border border-blue-100 items-end shadow-sm animate-fadeIn";
+      div.innerHTML = `
+          <div>
+              <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Αρχή κλίμακας από:</label>
+              <input type="number" name="rebateTiers[${tierIndex}].minQuantity" class="w-full rounded-lg border-gray-200 text-sm" required>
+          </div>
+          <div>
+              <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Τέλος κλίμακας έως και:</label>
+              <input type="number" name="rebateTiers[${tierIndex}].maxQuantity" class="w-full rounded-lg border-gray-200 text-sm">
+          </div>
+          <div>
+              <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Έκπτωση (€/τεμ)</label>
+              <input type="number" step="0.01" name="rebateTiers[${tierIndex}].rebateAmount" class="w-full rounded-lg border-gray-200 text-sm" required>
+          </div>
+          <button type="button" onclick="this.parentElement.remove()" class="p-2.5 text-red-500 hover:bg-red-50 rounded-lg transition-all">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+          </button>
+      `;
+      container.appendChild(div);
+      tierIndex++;
+    }
+  </script>
 
-<script>
-  let tierIndex = 0;
-  function addTier() {
-    const container = document.getElementById('tiers-container');
-    const div = document.createElement('div');
-    div.className = "grid grid-cols-4 gap-4 p-4 bg-white rounded-xl border border-blue-100 items-end shadow-sm animate-fadeIn";
-    div.innerHTML = `
-        <div>
-            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Αρχή κλίμακας από:</label>
-            <input type="number" name="rebateTiers[${tierIndex}].minQuantity" class="w-full rounded-lg border-gray-200 text-sm" required>
-        </div>
-        <div>
-            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Τέλος κλίμακας έως και:</label>
-            <input type="number" name="rebateTiers[${tierIndex}].maxQuantity" class="w-full rounded-lg border-gray-200 text-sm">
-        </div>
-        <div>
-            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Έκπτωση (€/τεμ)</label>
-            <input type="number" step="0.01" name="rebateTiers[${tierIndex}].rebateAmount" class="w-full rounded-lg border-gray-200 text-sm" required>
-        </div>
-        <button type="button" onclick="this.parentElement.remove()" class="p-2.5 text-red-500 hover:bg-red-50 rounded-lg transition-all">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-        </button>
-    `;
-    container.appendChild(div);
-    tierIndex++;
-}
-</script>
+  <div th:replace="~{fragments/layout :: footer}"></div>
 
-<div th:replace="~{fragments/layout :: footer}"></div>
+  <style>
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+  </style>
 
-<style>
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-  .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
-</style>
-
-</body>
-</html>
+  </body>
+  </html>

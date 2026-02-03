@@ -119,6 +119,7 @@ public class ProductService implements IProductService {
     /**
      * Ελέγχει αν οι κλίμακες rebate είναι έγκυρες, αν αλληλοκαλύπτονται
      * και αν υπερβαίνουν το διαθέσιμο απόθεμα.
+     * Επιτρέπεται maxQuantity == null μόνο στην τελευταία κλίμακα.
      */
     private void validateRebateTiers(List<RebateTierDTO> tiers, Integer totalStock) throws Exception {
         if (tiers == null || tiers.isEmpty()) return;
@@ -131,20 +132,20 @@ public class ProductService implements IProductService {
         for (int i = 0; i < activeTiers.size(); i++) {
             RebateTierDTO current = activeTiers.get(i);
 
-            //  Υποχρεωτικό τέλος κλίμακας (Business Logic: No open-ended tiers)
-            if (current.getMaxQuantity() == null) {
+            // Επιτρέπεται το null μόνο στο τελευταίο tier(Open-ended)
+            if (current.getMaxQuantity() == null && i != activeTiers.size() - 1) {
                 throw new Exception("Σφάλμα στην κλίμακα από " + current.getMinQuantity() +
-                        ": Πρέπει οπωσδήποτε να ορίσετε 'Τέλος κλίμακας έως και'.");
+                        ": Μόνο η τελευταία κλίμακα μπορεί να παραμείνει ανοιχτή (χωρίς τέλος).");
             }
 
-            // Έλεγχος αν η αρχή είναι μεγαλύτερη από το τέλος
-            if (current.getMinQuantity() > current.getMaxQuantity()) {
+            // Έλεγχος αν η αρχή είναι μεγαλύτερη από το τέλος (αν υπάρχει τέλος)
+            if (current.getMaxQuantity() != null && current.getMinQuantity() > current.getMaxQuantity()) {
                 throw new Exception("Σφάλμα στην κλίμακα " + current.getMinQuantity() + "-" + current.getMaxQuantity() +
                         ": Η αρχή κλίμακας δεν μπορεί να είναι μεγαλύτερη από το τέλος.");
             }
 
-            // Έλεγχος αν το τέλος κλίμακας υπερβαίνει το συνολικό Stock
-            if (totalStock != null && current.getMaxQuantity() > totalStock) {
+            // Έλεγχος αν το τέλος κλίμακας υπερβαίνει το συνολικό Stock (αν υπάρχει τέλος)
+            if (totalStock != null && current.getMaxQuantity() != null && current.getMaxQuantity() > totalStock) {
                 throw new Exception("Σφάλμα: Το τέλος της κλίμακας (" + current.getMaxQuantity() +
                         ") δεν μπορεί να υπερβαίνει το συνολικό απόθεμα του προϊόντος (" + totalStock + ").");
             }
@@ -152,6 +153,11 @@ public class ProductService implements IProductService {
             // Έλεγχος για Overlap με την επόμενη κλίμακα
             if (i < activeTiers.size() - 1) {
                 RebateTierDTO next = activeTiers.get(i + 1);
+
+                // Αν η τρέχουσα κλίμακα δεν έχει τέλος αλλά υπάρχει επόμενη, είναι σφάλμα λογικής
+                if (current.getMaxQuantity() == null) {
+                    throw new Exception("Η κλίμακα από " + current.getMinQuantity() + " πρέπει να έχει τέλος αφού ακολουθεί επόμενη.");
+                }
 
                 // Αν το τέλος της τρέχουσας είναι μεγαλύτερο ή ίσο με την αρχή της επόμενης
                 if (current.getMaxQuantity() >= next.getMinQuantity()) {

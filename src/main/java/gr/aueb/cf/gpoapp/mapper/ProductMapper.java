@@ -69,8 +69,7 @@ public class ProductMapper {
     }
 
     private void calculateRebateProgress(ProductDTO dto, Product product, int currentVol) {
-        // 1. Εύρεση της τρέχουσας έκπτωσης (Current Rebate) με Highlight
-        // Ταξινομούμε τα tiers για να βρούμε ποιο είναι το "υψηλότερο" που έχει επιτευχθεί
+        // 1. Εύρεση της τρέχουσας έκπτωσης (Current Rebate) με Sticky Logic
         List<RebateTier> sortedTiers = product.getRebateTiers().stream()
                 .sorted(Comparator.comparing(RebateTier::getMinQuantity))
                 .collect(Collectors.toList());
@@ -78,41 +77,43 @@ public class ProductMapper {
         if (!sortedTiers.isEmpty()) {
             RebateTier activeTier = null;
             for (RebateTier t : sortedTiers) {
-                // Αν ο όγκος είναι τουλάχιστον ίσος με την αρχή της κλίμακας, το tier αυτό είναι "ενεργό"
                 if (currentVol >= t.getMinQuantity()) {
                     activeTier = t;
-                    // Αν είμαστε και μέσα στο τέλος της κλίμακας, αυτό είναι το ακριβές tier μας
-                    if (t.getMaxQuantity() == null || currentVol <= t.getMaxQuantity()) {
+                    // Αν είμαστε μέσα στα όρια, σταματάμε. Αν όχι (currentVol > max),
+                    // συνεχίζουμε για να βρούμε αν υπάρχει επόμενο (υψηλότερο) tier.
+                    if (t.getMaxQuantity() != null && currentVol <= t.getMaxQuantity()) {
                         break;
                     }
                 }
             }
 
-            // Αν βρέθηκε tier που έχει ξεκλειδώσει ο χρήστης, θέτουμε το label για το highlight
             if (activeTier != null) {
                 dto.setCurrentRebateLabel(activeTier.getRebateAmount().stripTrailingZeros().toPlainString() + "€");
             }
         }
 
-        // 2. Εύρεση του Tier στο οποίο ανήκουμε ή του αμέσως επόμενου
+        // 2. Υπολογισμός Progress Bar και Next Tier Label
         product.getRebateTiers().stream()
                 .filter(t -> t.getMaxQuantity() == null || t.getMaxQuantity() >= currentVol)
                 .sorted(Comparator.comparing(RebateTier::getMinQuantity))
                 .findFirst()
                 .ifPresentOrElse(tier -> {
-                    // Ο στόχος είναι το MaxQuantity του επιπέδου που διανύουμε
-                    int target = (tier.getMaxQuantity() != null) ? tier.getMaxQuantity() : tier.getMinQuantity();
-                    dto.setNextTierThreshold(target);
-                    dto.setNextRebateLabel("-" + tier.getRebateAmount() + "€");
-
-                    // Υπολογισμός % προόδου για το CSS width της μπάρας
-                    double percent = ((double) currentVol / target) * 100;
-                    dto.setProgressPercent((int) Math.min(percent, 100));
+                    // Αν είμαστε στο τελευταίο (Open-ended) Tier και το έχουμε φτάσει/ξεπεράσει
+                    if (tier.getMaxQuantity() == null && currentVol >= tier.getMinQuantity()) {
+                        dto.setNextTierThreshold(currentVol);
+                        dto.setProgressPercent(100);
+                        dto.setNextRebateLabel("MAX REACHED");
+                    } else {
+                        int target = (tier.getMaxQuantity() != null) ? tier.getMaxQuantity() : tier.getMinQuantity();
+                        dto.setNextTierThreshold(target);
+                        dto.setNextRebateLabel("-" + tier.getRebateAmount() + "€");
+                        double percent = ((double) currentVol / target) * 100;
+                        dto.setProgressPercent((int) Math.min(percent, 100));
+                    }
                 }, () -> {
-                    // Αν έχουμε ξεπεράσει και το τελευταίο Tier (MAX REACHED)
                     dto.setNextTierThreshold(currentVol);
                     dto.setProgressPercent(100);
-                    dto.setNextRebateLabel("MAX REBATE REACHED");
+                    dto.setNextRebateLabel("MAX REACHED");
                 });
     }
 

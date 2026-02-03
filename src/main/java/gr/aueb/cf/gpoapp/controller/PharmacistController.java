@@ -1,6 +1,5 @@
 package gr.aueb.cf.gpoapp.controller;
 
-
 import gr.aueb.cf.gpoapp.service.ICategoryService;
 import gr.aueb.cf.gpoapp.service.IProductService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,7 @@ public class PharmacistController {
         return "pharmacist/dashboard";
     }
 
-    /* Η μέθοδος showProducts αφαιρέθηκε από εδώ.
+        /* Η μέθοδος showProducts αφαιρέθηκε από εδώ.
        Η διαχείριση των προϊόντων γίνεται πλέον από τον ProductController στο path /products
        για την αποφυγή URL path conflicts και την ορθή λειτουργία του navigation.
     */

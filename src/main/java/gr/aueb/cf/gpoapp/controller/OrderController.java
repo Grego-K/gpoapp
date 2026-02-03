@@ -2,21 +2,20 @@ package gr.aueb.cf.gpoapp.controller;
 
 import gr.aueb.cf.gpoapp.core.filters.OrderFilters;
 import gr.aueb.cf.gpoapp.dto.OrderItemRequestDTO;
-import gr.aueb.cf.gpoapp.model.Order;
+import gr.aueb.cf.gpoapp.dto.OrderReadOnlyDTO;
 import gr.aueb.cf.gpoapp.model.User;
 import gr.aueb.cf.gpoapp.service.IOrderService;
 import gr.aueb.cf.gpoapp.service.ISupplierService;
-import gr.aueb.cf.gpoapp.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -25,79 +24,73 @@ import java.util.List;
 public class OrderController {
 
     private final IOrderService orderService;
-    private final IUserService userService;
     private final ISupplierService supplierService;
 
+    // Λίστα παραγγελιών
     @GetMapping
-    public String listOrders(Principal principal,
-                             @ModelAttribute("filters") OrderFilters filters,
-                             Model model) {
-        User user = userService.findByUsername(principal.getName());
+    public String listOrders(
+            @AuthenticationPrincipal User user,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            OrderFilters filters,
+            Model model) {
 
-        // Κλήση του Service με τα φίλτρα και τη σελιδοποίηση
-        Page<Order> orderPage = orderService.findAllOrdersByPharmacist(user, filters);
+        filters.setPageable(PageRequest.of(page, size));
+        Page<OrderReadOnlyDTO> ordersPage = orderService.findAllOrdersDTOByPharmacist(user, filters);
 
-        model.addAttribute("orders", orderPage.getContent());
-        model.addAttribute("orderPage", orderPage); // Για το pagination στο HTML
-        model.addAttribute("suppliers", supplierService.findAllSuppliers());
+        model.addAttribute("orders", ordersPage);
         model.addAttribute("filters", filters);
+        model.addAttribute("suppliers", supplierService.findAllSuppliers());
 
         return "pharmacist/orders";
     }
 
-    /**
-     * Μαζική προσθήκη προϊόντων:
-     * Δέχεται JSON body από το fetch της JavaScript.
-     * Χρησιμοποιεί το @RequestBody για αυτόματο mapping.
-     */
-    @PostMapping("/add-bulk")
-    @ResponseBody
-    public ResponseEntity<String> addBulkProductsToOrder(@RequestBody List<OrderItemRequestDTO> items,
-                                                         Principal principal) {
-        try {
-            // Ταυτοποίηση χρήστη
-            User user = userService.findByUsername(principal.getName());
-
-            // Προσθήκη κάθε προϊόντος στην παραγγελία μέσω του Service
-            for (OrderItemRequestDTO item : items) {
-                orderService.addProductToOrder(user, item.getProductId(), item.getQuantity());
-            }
-
-            // Επιστρέφουμε 200 OK για να το διαβάσει η JavaScript
-            return ResponseEntity.ok("Success");
-        } catch (Exception e) {
-            // Επιστρέφουμε 500 αν κάτι πάει στραβά στο server side
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Σφάλμα κατά τη μαζική προσθήκη: " + e.getMessage());
-        }
+    // Λεπτομέρειες παραγγελίας
+    @GetMapping("/{uuid}")
+    public String viewOrder(@PathVariable String uuid, Model model) {
+        OrderReadOnlyDTO order = orderService.findOrderDTOByUuid(uuid);
+        model.addAttribute("order", order);
+        return "pharmacist/order-details";
     }
 
+    // Οριστική Υποβολή (Submission)
     @PostMapping("/{uuid}/submit")
     public String submitOrder(@PathVariable String uuid, RedirectAttributes redirectAttributes) {
         try {
             orderService.submitOrder(uuid);
             redirectAttributes.addFlashAttribute("successMessage", "Η παραγγελία υποβλήθηκε επιτυχώς!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Αποτυχία υποβολής: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
         return "redirect:/pharmacist/orders";
     }
 
+    // Ακύρωση παραγγελίας
     @PostMapping("/{uuid}/cancel")
     public String cancelOrder(@PathVariable String uuid, RedirectAttributes redirectAttributes) {
         try {
             orderService.cancelOrder(uuid);
-            redirectAttributes.addFlashAttribute("successMessage", "Η παραγγελία ακυρώθηκε επιτυχώς.");
+            redirectAttributes.addFlashAttribute("successMessage", "Η παραγγελία ακυρώθηκε.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Σφάλμα κατά την ακύρωση: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
         return "redirect:/pharmacist/orders";
     }
 
-    @GetMapping("/{uuid}")
-    public String viewOrderDetails(@PathVariable String uuid, Model model) {
-        Order order = orderService.findOrderByUuid(uuid);
-        model.addAttribute("order", order);
-        return "pharmacist/order-details";
+    // Προσθήκη Bulk από το καλάθι
+    @PostMapping("/add-bulk")
+    @ResponseBody
+    public ResponseEntity<?> addBulkOrder(@AuthenticationPrincipal User user,
+                                          @RequestBody List<OrderItemRequestDTO> items) {
+        try {
+            if (items == null || items.isEmpty()) return ResponseEntity.badRequest().body("Άδειο καλάθι");
+
+            for (OrderItemRequestDTO item : items) {
+                orderService.addProductToOrder(user, item.getProductId(), item.getQuantity());
+            }
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
     }
 }

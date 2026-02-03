@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface ISupplierService {
     /**
-     * Επιστρέφει όλους τους προμηθευτές για χρήση σε dropdown λίστες.
+     * Επιστρέφει όλους τους προμηθευτές.
      */
     List<Supplier> findAllSuppliers();
 

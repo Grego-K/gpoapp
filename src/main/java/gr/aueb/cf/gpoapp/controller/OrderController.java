@@ -8,7 +8,6 @@ import gr.aueb.cf.gpoapp.service.IOrderService;
 import gr.aueb.cf.gpoapp.service.ISupplierService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -41,8 +40,13 @@ public class OrderController {
             OrderFilters filters,
             Model model) {
 
-        filters.setPageable(PageRequest.of(page, size));
-        Page<OrderReadOnlyDTO> ordersPage = orderService.findAllOrdersDTOByPharmacist(user, filters);
+        // Ενημέρωση των πεδίων σελιδοποίησης στο αντικείμενο φίλτρων
+        filters.setPage(page);
+        filters.setPageSize(size);
+
+        // Η getPageable() θα κληθεί αυτόματα μέσα στο Service
+        Page<OrderReadOnlyDTO> ordersPage =
+                orderService.findAllOrdersDTOByPharmacist(user, filters);
 
         model.addAttribute("orders", ordersPage);
         model.addAttribute("filters", filters);

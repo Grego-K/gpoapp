@@ -36,6 +36,7 @@ public class OrderService implements IOrderService {
                 ? filters.getDateFrom().atStartOfDay()
                 : null;
 
+        // Κλήση της getPageable() η οποία περιλαμβάνει το DESC sorting από την GenericFilters
         return orderRepository.findFilteredOrders(
                 user,
                 filters.getStatus(),

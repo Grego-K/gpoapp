@@ -18,6 +18,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
+/**
+ * Διαχειρίζεται τις λειτουργίες των παραγγελιών για τον Φαρμακοποιό.
+ */
 @Controller
 @RequestMapping("/pharmacist/orders")
 @RequiredArgsConstructor
@@ -26,7 +29,10 @@ public class OrderController {
     private final IOrderService orderService;
     private final ISupplierService supplierService;
 
-    // Λίστα παραγγελιών
+    /**
+     * Εμφανίζει τη λίστα παραγγελιών του συνδεδεμένου φαρμακοποιού.
+     * Χρησιμοποιεί το GenericFilters για DESC ταξινόμηση (νεότερες πρώτα).
+     */
     @GetMapping
     public String listOrders(
             @AuthenticationPrincipal User user,
@@ -45,7 +51,9 @@ public class OrderController {
         return "pharmacist/orders";
     }
 
-    // Λεπτομέρειες παραγγελίας
+    /**
+     * Εμφανίζει τις λεπτομέρειες μιας συγκεκριμένης παραγγελίας.
+     */
     @GetMapping("/{uuid}")
     public String viewOrder(@PathVariable String uuid, Model model) {
         OrderReadOnlyDTO order = orderService.findOrderDTOByUuid(uuid);
@@ -53,44 +61,52 @@ public class OrderController {
         return "pharmacist/order-details";
     }
 
-    // Οριστική Υποβολή (Submission)
+    /**
+     * Οριστική υποβολή της παραγγελίας (από PENDING σε SUBMITTED).
+     */
     @PostMapping("/{uuid}/submit")
     public String submitOrder(@PathVariable String uuid, RedirectAttributes redirectAttributes) {
         try {
             orderService.submitOrder(uuid);
             redirectAttributes.addFlashAttribute("successMessage", "Η παραγγελία υποβλήθηκε επιτυχώς!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Σφάλμα κατά την υποβολή: " + e.getMessage());
         }
         return "redirect:/pharmacist/orders";
     }
 
-    // Ακύρωση παραγγελίας
+    /**
+     * Ακύρωση μιας εκκρεμούς παραγγελίας.
+     */
     @PostMapping("/{uuid}/cancel")
     public String cancelOrder(@PathVariable String uuid, RedirectAttributes redirectAttributes) {
         try {
             orderService.cancelOrder(uuid);
-            redirectAttributes.addFlashAttribute("successMessage", "Η παραγγελία ακυρώθηκε.");
+            redirectAttributes.addFlashAttribute("successMessage", "Η παραγγελία ακυρώθηκε επιτυχώς.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Σφάλμα κατά την ακύρωση: " + e.getMessage());
         }
         return "redirect:/pharmacist/orders";
     }
 
-    // Προσθήκη Bulk από το καλάθι
+    /**
+     * REST endpoint για τη μαζική προσθήκη προϊόντων από το καλάθι (localStorage).
+     */
     @PostMapping("/add-bulk")
     @ResponseBody
     public ResponseEntity<?> addBulkOrder(@AuthenticationPrincipal User user,
                                           @RequestBody List<OrderItemRequestDTO> items) {
         try {
-            if (items == null || items.isEmpty()) return ResponseEntity.badRequest().body("Άδειο καλάθι");
+            if (items == null || items.isEmpty()) {
+                return ResponseEntity.badRequest().body("Το καλάθι είναι άδειο.");
+            }
 
             for (OrderItemRequestDTO item : items) {
                 orderService.addProductToOrder(user, item.getProductId(), item.getQuantity());
             }
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body("Σφάλμα συστήματος: " + e.getMessage());
         }
     }
 }

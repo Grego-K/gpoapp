@@ -35,11 +35,11 @@
                 <div class="text-xl font-bold text-gray-800" th:text="${order.itemCount + ' είδη'}">0 είδη</div>
             </div>
             <div class="border-r border-gray-100 pr-4">
-                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Συνολικό Κόστος GPO</label>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Συνολικό Κόστος</label>
                 <div class="text-xl font-bold text-teal-600" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2) + ' €'}">0.00 €</div>
             </div>
             <div class="border-r border-gray-100 pr-4">
-                <label class="block text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1 font-black">Συνολικό Rebate</label>
+                <label class="block text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1 font-black">Εκτιμώμενη Πίστωση</label>
                 <div class="text-xl font-black text-amber-600" th:text="${#numbers.formatDecimal(order.totalEstimatedRebate, 1, 2) + ' €'}">0.00 €</div>
             </div>
             <div>
@@ -64,9 +64,9 @@
                             <th class="px-6 py-4">Προϊόν</th>
                             <th class="px-6 py-4 text-center">Ποσότητα</th>
                             <th class="px-6 py-4 text-right">Τιμή GPO</th>
-                            <th class="px-6 py-4 text-right text-teal-600 bg-teal-50/20">Τιμή Tier</th>
+                            <th class="px-6 py-4 text-right text-teal-600 bg-teal-50/20">Τιμή Κλίμακας</th>
                             <th class="px-6 py-4 text-right">Σύνολο</th>
-                            <th class="px-6 py-4 text-right text-amber-600 bg-amber-50/20">Rebate</th>
+                            <th class="px-6 py-4 text-right text-amber-600 bg-amber-50/20">Εκτιμώμενη πίστωση</th>
                         </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">

@@ -88,12 +88,12 @@
           </div>
         </td>
         <td class="px-6 py-4 text-right">
-          <div class="font-bold text-gray-700 text-sm" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2) + ' €'}">0.00 €</div>
+          <div class="font-bold text-gray-700 text-sm" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'POINT', 2, 'COMMA') + ' €'}">0.00 €</div>
           <div class="text-[10px] text-gray-400" th:text="${order.itemCount + ' είδη'}">0 είδη</div>
         </td>
         <td class="px-6 py-4 text-right">
           <div class="font-black text-amber-600 text-sm"
-               th:text="${#numbers.formatDecimal(order.totalEstimatedRebate, 1, 2) + ' €'}">0.00 €</div>
+               th:text="${#numbers.formatDecimal(order.totalEstimatedRebate, 1, 'POINT', 2, 'COMMA') + ' €'}">0.00 €</div>
           <div class="text-[9px] font-bold text-amber-400 uppercase tracking-tighter">Εκτιμώμενο</div>
         </td>
         <td class="px-6 py-4 text-center">

@@ -102,13 +102,13 @@
 
                         <td class="px-6 py-4 text-right">
                             <span class="text-xs font-bold text-gray-300 line-through tracking-tighter"
-                                  th:text="${#numbers.formatDecimal(product.basePrice, 1, 2) + ' €'}">
+                                  th:text="${#numbers.formatDecimal(product.basePrice, 1, 'POINT', 2, 'COMMA') + ' €'}">
                             </span>
                         </td>
 
                         <td class="px-6 py-4 text-right">
                             <span class="text-sm font-black text-teal-600 tracking-tight"
-                                  th:text="${#numbers.formatDecimal(product.gpoPrice, 1, 2) + ' €'}">
+                                  th:text="${#numbers.formatDecimal(product.gpoPrice, 1, 'POINT', 2, 'COMMA') + ' €'}">
                             </span>
                         </td>
 
@@ -157,8 +157,8 @@
                 </div>
                 <div class="border-t border-gray-100 pt-6">
                     <div class="flex justify-between items-end mb-6">
-                        <span class="text-gray-400 font-bold text-[10px] uppercase">Σύνολο GPO</span>
-                        <span id="cart-total" class="text-2xl font-black text-teal-600">0.00 €</span>
+                        <span class="text-gray-400 font-bold text-[10px] uppercase">Σύνολο Καλαθιού</span>
+                        <span id="cart-total" class="text-2xl font-black text-teal-600">0,00 €</span>
                     </div>
                     <button onclick="submitBulkOrder()" id="btn-submit" disabled
                             class="w-full py-4 bg-gray-200 text-gray-400 rounded-xl font-bold transition-all cursor-not-allowed uppercase text-xs">
@@ -210,6 +210,14 @@
         updateCartUI();
     }
 
+    // Μορφοποίηση αριθμού σε στυλ 3.500,00 €
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('el-GR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(amount) + ' €';
+    }
+
     function updateCartUI() {
         const container = document.getElementById('cart-items');
         const totalEl = document.getElementById('cart-total');
@@ -219,7 +227,7 @@
 
         if (cart.length === 0) {
             container.innerHTML = '<p class="text-gray-400 text-center text-sm py-8 border-2 border-dashed border-gray-50 rounded-xl">Άδειο καλάθι</p>';
-            totalEl.innerText = '0.00 €';
+            totalEl.innerText = '0,00 €';
             btn.disabled = true;
             btn.className = "w-full py-4 bg-gray-200 text-gray-400 rounded-xl font-bold transition-all cursor-not-allowed uppercase text-xs";
             return;
@@ -228,11 +236,12 @@
         let total = 0;
         container.innerHTML = cart.map(item => {
             total += (item.price * item.quantity);
+            // Χρήση της formatCurrency για την τιμή μονάδας μέσα στο καλάθι
             return `
                 <div class="flex justify-between items-start p-2 hover:bg-gray-50 rounded-lg transition-all">
                     <div>
                         <div class="text-xs font-bold text-gray-800">${item.name}</div>
-                        <div class="text-[10px] text-gray-400 font-bold">${item.quantity} x ${item.price.toFixed(2)}€</div>
+                        <div class="text-[10px] text-gray-400 font-bold">${item.quantity} x ${formatCurrency(item.price)}</div>
                     </div>
                     <button onclick="removeFromCart('${item.productId}')" class="text-gray-300 hover:text-red-500">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"></path></svg>
@@ -240,7 +249,8 @@
                 </div>`;
         }).join('');
 
-        totalEl.innerText = total.toFixed(2) + ' €';
+        // Εφαρμογή μορφοποίησης στο γενικό σύνολο
+        totalEl.innerText = formatCurrency(total);
         btn.disabled = false;
         btn.className = "w-full py-4 bg-teal-600 text-white rounded-xl font-bold shadow-lg hover:bg-teal-700 transition-all uppercase text-xs";
     }

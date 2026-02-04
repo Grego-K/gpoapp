@@ -36,11 +36,11 @@
             </div>
             <div class="border-r border-gray-100 pr-4">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Συνολικό Κόστος</label>
-                <div class="text-xl font-bold text-teal-600" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2) + ' €'}">0.00 €</div>
+                <div class="text-xl font-bold text-teal-600" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'POINT', 2, 'COMMA') + ' €'}">0.00 €</div>
             </div>
             <div class="border-r border-gray-100 pr-4">
                 <label class="block text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1 font-black">Εκτιμώμενη Πίστωση</label>
-                <div class="text-xl font-black text-amber-600" th:text="${#numbers.formatDecimal(order.totalEstimatedRebate, 1, 2) + ' €'}">0.00 €</div>
+                <div class="text-xl font-black text-amber-600" th:text="${#numbers.formatDecimal(order.totalEstimatedRebate, 1, 'POINT', 2, 'COMMA') + ' €'}">0.00 €</div>
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Προμηθευτές</label>
@@ -75,15 +75,15 @@
                                 <div class="font-bold text-gray-800 text-sm" th:text="${item.productName}">Product</div>
                             </td>
                             <td class="px-6 py-4 text-center font-bold text-gray-600 text-sm" th:text="${item.quantity}">0</td>
-                            <td class="px-6 py-4 text-right text-gray-500 text-sm" th:text="${#numbers.formatDecimal(item.unitPrice, 1, 2) + ' €'}">0.00</td>
+                            <td class="px-6 py-4 text-right text-gray-500 text-sm whitespace-nowrap" th:text="${#numbers.formatDecimal(item.unitPrice, 1, 'POINT', 2, 'COMMA') + ' €'}">0.00</td>
 
-                            <td class="px-6 py-4 text-right font-bold text-teal-600 text-sm bg-teal-50/20">
-                                <span th:text="${item.netTierPrice != null ? #numbers.formatDecimal(item.netTierPrice, 1, 2) + ' €' : '-'}"></span>
+                            <td class="px-6 py-4 text-right font-bold text-teal-600 text-sm bg-teal-50/20 whitespace-nowrap">
+                                <span th:text="${item.netTierPrice != null ? #numbers.formatDecimal(item.netTierPrice, 1, 'POINT', 2, 'COMMA') + ' €' : '-'}"></span>
                             </td>
 
-                            <td class="px-6 py-4 text-right font-bold text-gray-800 text-sm" th:text="${#numbers.formatDecimal(item.unitPrice * item.quantity, 1, 2) + ' €'}">0.00</td>
-                            <td class="px-6 py-4 text-right font-black text-amber-600 text-sm bg-amber-50/20"
-                                th:text="${#numbers.formatDecimal(item.estimatedItemRebate, 1, 2) + ' €'}">0.00</td>
+                            <td class="px-6 py-4 text-right font-bold text-gray-800 text-sm whitespace-nowrap" th:text="${#numbers.formatDecimal(item.unitPrice * item.quantity, 1, 'POINT', 2, 'COMMA') + ' €'}">0.00</td>
+                            <td class="px-6 py-4 text-right font-black text-amber-600 text-sm bg-amber-50/20 whitespace-nowrap"
+                                th:text="${#numbers.formatDecimal(item.estimatedItemRebate, 1, 'POINT', 2, 'COMMA') + ' €'}">0.00</td>
                         </tr>
                         </tbody>
                     </table>
@@ -106,7 +106,7 @@
                 <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Σύνοψη Επιστροφής</h3>
                 <div class="p-4 bg-amber-50 rounded-xl border border-amber-100">
                     <div class="text-xs text-amber-700 font-bold mb-1 uppercase">Εκτιμώμενη Πίστωση</div>
-                    <div class="text-3xl font-black text-amber-600" th:text="${#numbers.formatDecimal(order.totalEstimatedRebate, 1, 2) + ' €'}">0.00</div>
+                    <div class="text-3xl font-black text-amber-600" th:text="${#numbers.formatDecimal(order.totalEstimatedRebate, 1, 'POINT', 2, 'COMMA') + ' €'}">0.00</div>
                     <p class="text-[9px] text-amber-500 mt-2 italic">*Το ποσό υπολογίζεται με βάση το Tier που έχει πιάσει το Group αυτή τη στιγμή.</p>
                 </div>
             </div>

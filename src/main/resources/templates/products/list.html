@@ -114,16 +114,24 @@
 
                         <td class="px-6 py-4">
                             <div class="flex justify-center gap-2">
-                                <div sec:authorize="hasRole('PHARMACIST')" class="flex items-center gap-2">
+                                <div sec:authorize="hasRole('PHARMACIST')" class="flex items-center gap-1">
+                                    <button type="button"
+                                            th:data-id="${product.id}"
+                                            onclick="handleQuickRemove(this)"
+                                            class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-500 hover:text-white transition-all border border-red-100">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12H4"></path></svg>
+                                    </button>
+
                                     <input type="number" th:id="'qty-' + ${product.id}" value="1" min="1"
-                                           class="w-12 px-2 py-1 text-xs border rounded-lg text-center focus:ring-1 focus:ring-teal-500 outline-none">
+                                           class="w-20 px-2 py-2 text-sm border-2 border-gray-100 rounded-xl text-center focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none font-bold">
+
                                     <button type="button"
                                             th:data-id="${product.id}"
                                             th:data-name="${product.productName}"
                                             th:data-price="${product.gpoPrice}"
                                             onclick="handleAddToCart(this)"
-                                            class="p-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-all shadow-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg>
+                                            class="p-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-all shadow-md">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
                                     </button>
                                 </div>
                                 <div sec:authorize="hasRole('ADMIN')">
@@ -148,10 +156,16 @@
 
         <aside sec:authorize="hasRole('PHARMACIST')" class="lg:col-span-1">
             <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sticky top-8">
-                <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                    Καλάθι
-                </h2>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                        Καλάθι
+                    </h2>
+                    <button onclick="clearFullCart()" class="text-[10px] font-bold text-red-400 hover:text-red-600 uppercase tracking-tighter transition-colors">
+                        Αφαίρεση Όλων
+                    </button>
+                </div>
+
                 <div id="cart-items" class="space-y-4 mb-8 max-h-[400px] overflow-y-auto pr-2">
                     <p class="text-gray-400 text-center text-sm py-8 border-2 border-dashed border-gray-50 rounded-xl">Άδειο καλάθι</p>
                 </div>
@@ -174,7 +188,6 @@
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-    // Χρήση του username για μοναδικό καλάθι ανά χρήστη
     const currentUser = /*[[${#authentication.name}]]*/ 'guest';
     const cartKey = 'pharmaCart_' + currentUser;
 
@@ -205,12 +218,34 @@
         updateCartUI();
     }
 
+    function handleQuickRemove(button) {
+        const id = button.getAttribute('data-id');
+        const qtyInput = document.getElementById('qty-' + id);
+        const quantityToRemove = parseInt(qtyInput.value);
+        if (isNaN(quantityToRemove) || quantityToRemove <= 0) return;
+
+        const existing = cart.find(i => i.productId == id);
+        if (existing) {
+            existing.quantity -= quantityToRemove;
+            if (existing.quantity <= 0) {
+                cart = cart.filter(i => i.productId != id);
+            }
+            updateCartUI();
+        }
+    }
+
     function removeFromCart(id) {
         cart = cart.filter(i => i.productId != id);
         updateCartUI();
     }
 
-    // Μορφοποίηση αριθμού σε στυλ 3.500,00 €
+    function clearFullCart() {
+        if (cart.length > 0 && confirm('Είστε σίγουροι ότι θέλετε να αδειάσετε το καλάθι;')) {
+            cart = [];
+            updateCartUI();
+        }
+    }
+
     function formatCurrency(amount) {
         return new Intl.NumberFormat('el-GR', {
             minimumFractionDigits: 2,
@@ -236,20 +271,20 @@
         let total = 0;
         container.innerHTML = cart.map(item => {
             total += (item.price * item.quantity);
-            // Χρήση της formatCurrency για την τιμή μονάδας μέσα στο καλάθι
             return `
-                <div class="flex justify-between items-start p-2 hover:bg-gray-50 rounded-lg transition-all">
+                <div class="flex justify-between items-start p-2 hover:bg-gray-50 rounded-lg transition-all border-b border-gray-50 last:border-0 pb-3">
                     <div>
                         <div class="text-xs font-bold text-gray-800">${item.name}</div>
-                        <div class="text-[10px] text-gray-400 font-bold">${item.quantity} x ${formatCurrency(item.price)}</div>
+                        <div class="text-[10px] text-gray-400 font-bold mt-1">
+                            <span class="text-teal-600">${item.quantity}</span> x ${formatCurrency(item.price)}
+                        </div>
                     </div>
-                    <button onclick="removeFromCart('${item.productId}')" class="text-gray-300 hover:text-red-500">
+                    <button onclick="removeFromCart('${item.productId}')" class="text-gray-300 hover:text-red-500 transition-colors">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"></path></svg>
                     </button>
                 </div>`;
         }).join('');
 
-        // Εφαρμογή μορφοποίησης στο γενικό σύνολο
         totalEl.innerText = formatCurrency(total);
         btn.disabled = false;
         btn.className = "w-full py-4 bg-teal-600 text-white rounded-xl font-bold shadow-lg hover:bg-teal-700 transition-all uppercase text-xs";

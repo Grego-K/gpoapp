@@ -165,7 +165,7 @@
 
 ### Επιλογή Β: Εγκατάσταση απο release με δυνατότητα τοπικής βάσης δεδομένων.
 
-Μεταβείτε στο https://github.com/Grego-K/gpoapp/releases(https://github.com/Grego-K/gpoapp/releases) και ακολουθήστε τις οδηγίες.
+Μεταβείτε στο https://github.com/Grego-K/gpoapp/releases και ακολουθήστε τις οδηγίες.
 
 ---
 

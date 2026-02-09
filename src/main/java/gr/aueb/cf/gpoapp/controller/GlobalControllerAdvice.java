@@ -1,4 +1,4 @@
-package gr.aueb.cf.gpoapp.controller.advice;
+package gr.aueb.cf.gpoapp.controller;
 
 import gr.aueb.cf.gpoapp.model.Order;
 import gr.aueb.cf.gpoapp.model.User;

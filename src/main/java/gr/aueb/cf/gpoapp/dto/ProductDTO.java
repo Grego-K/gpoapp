@@ -22,11 +22,11 @@ public class ProductDTO {
     private String description;
 
     @NotNull(message = "Η αρχική τιμή είναι υποχρεωτική")
-    @DecimalMin(value = "0.01", message = "Η τιμή πρέπει να είναι θετική")
+    @DecimalMin(value = "0.01", message = "Η τιμή πρέπει να είναι μεγαλύτερη από μηδέν")
     private BigDecimal basePrice;
 
     @NotNull(message = "Η τιμή GPO είναι υποχρεωτική")
-    @DecimalMin(value = "0.01", message = "Η τιμή GPO πρέπει να είναι θετική")
+    @DecimalMin(value = "0.01", message = "Η τιμή GPO πρέπει να είναι μεγαλύτερη από μηδέν")
     private BigDecimal gpoPrice;
 
     @NotNull(message = "Το απόθεμα είναι υποχρεωτικό")
@@ -44,11 +44,17 @@ public class ProductDTO {
     private String categoryName;
     private String supplierName;
 
-    // --- Rebate & Progress Fields ---
+    // Custom Validation: Ελέγχει αν η τιμή GPO είναι <= της Αρχικής
+    @AssertTrue(message = "Η τιμή GPO δεν μπορεί να είναι μεγαλύτερη από την Αρχική τιμή")
+    public boolean isGpoPriceValid() {
+        if (basePrice == null || gpoPrice == null) return true;
+        return gpoPrice.compareTo(basePrice) <= 0;
+    }
+
     private Integer currentVolume;
     private Integer nextTierThreshold;
     private Integer progressPercent;
-    private String currentRebateLabel; // Π.χ. "2€"
+    private String currentRebateLabel;
     private String nextRebateLabel;
 
     // Λίστα με όλα τα ποσά εκπτώσεων για το UI πχ "2 / 3 / 4 €"

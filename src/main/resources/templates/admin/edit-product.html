@@ -15,64 +15,98 @@
 
     <div class="bg-indigo-600 px-6 py-4">
       <h2 class="text-xl font-bold text-white">Επεξεργασία Στοιχείων</h2>
-      <p class="text-indigo-50 text-xs mt-0.5">Τροποποιήστε τα πεδία του προϊόντος.</p>
+      <p class="text-indigo-50 text-xs mt-0.5">Τροποποιήστε τα πεδία του προϊόντος σύμφωνα με τους κανόνες εγκυρότητας.</p>
     </div>
 
-    <form th:action="@{/admin/products/update/{id}(id=${productDTO.id})}" th:object="${productDTO}" method="post" class="p-6 space-y-4">
+    <form th:action="@{/admin/products/update/{id}(id=${productDTO.id})}"
+          th:object="${productDTO}"
+          method="post"
+          class="p-6 space-y-4"
+          novalidate>
 
       <input type="hidden" th:field="*{id}">
+      <input type="hidden" th:field="*{uuid}">
 
-      <div th:if="${errorMessage}" class="p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-xs font-bold mb-2" th:text="${errorMessage}"></div>
+      <div th:if="${#fields.hasGlobalErrors()}" class="p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-xs font-bold mb-4 rounded shadow-sm">
+        <ul>
+          <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+        </ul>
+      </div>
+
+      <div th:if="${errorMessage}" class="p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-xs font-bold mb-4" th:text="${errorMessage}"></div>
 
       <div class="grid grid-cols-1 gap-4">
+
         <div>
           <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Όνομα Προϊόντος</label>
-          <input type="text" th:field="*{productName}" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none text-sm transition-all">
+          <input type="text" th:field="*{productName}"
+                 class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-all"
+                 th:classappend="${#fields.hasErrors('productName')} ? 'border-red-500 ring-1 ring-red-500' : ''">
           <p th:if="${#fields.hasErrors('productName')}" th:errors="*{productName}" class="text-red-500 text-[10px] mt-1 font-bold"></p>
         </div>
 
         <div>
           <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Περιγραφή</label>
-          <textarea th:field="*{description}" rows="2" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none text-sm transition-all"></textarea>
+          <textarea th:field="*{description}" rows="2"
+                    class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-all"></textarea>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Αρχική (€)</label>
-            <input type="number" step="0.01" th:field="*{basePrice}" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Αρχική Τιμή (€)</label>
+            <input type="number" step="0.01" th:field="*{basePrice}"
+                   class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm shadow-sm"
+                   th:classappend="${#fields.hasErrors('basePrice')} ? 'border-red-500 ring-1 ring-red-500' : ''">
+            <p th:if="${#fields.hasErrors('basePrice')}" th:errors="*{basePrice}" class="text-red-500 text-[10px] mt-1 font-bold"></p>
           </div>
           <div>
             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Τιμή GPO (€)</label>
-            <input type="number" step="0.01" th:field="*{gpoPrice}" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+            <input type="number" step="0.01" th:field="*{gpoPrice}"
+                   class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm shadow-sm"
+                   th:classappend="${#fields.hasErrors('gpoPrice')} ? 'border-red-500 ring-1 ring-red-500' : ''">
+            <p th:if="${#fields.hasErrors('gpoPrice')}" th:errors="*{gpoPrice}" class="text-red-500 text-[10px] mt-1 font-bold"></p>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Απόθεμα</label>
-            <input type="number" th:field="*{stockQuantity}" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none text-sm">
+            <input type="number" th:field="*{stockQuantity}"
+                   class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm shadow-sm"
+                   th:classappend="${#fields.hasErrors('stockQuantity')} ? 'border-red-500 ring-1 ring-red-500' : ''">
+            <p th:if="${#fields.hasErrors('stockQuantity')}" th:errors="*{stockQuantity}" class="text-red-500 text-[10px] mt-1 font-bold"></p>
           </div>
           <div>
             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Κατηγορία</label>
-            <select th:field="*{categoryId}" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none bg-white text-sm">
+            <select th:field="*{categoryId}"
+                    class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-sm shadow-sm"
+                    th:classappend="${#fields.hasErrors('categoryId')} ? 'border-red-500 ring-1 ring-red-500' : ''">
+              <option value="" disabled>Επιλέξτε Κατηγορία</option>
               <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
             </select>
+            <p th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}" class="text-red-500 text-[10px] mt-1 font-bold"></p>
           </div>
         </div>
 
         <div>
           <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Προμηθευτής</label>
-          <select th:field="*{supplierId}" class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none bg-white text-sm">
+          <select th:field="*{supplierId}"
+                  class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-sm shadow-sm"
+                  th:classappend="${#fields.hasErrors('supplierId')} ? 'border-red-500 ring-1 ring-red-500' : ''">
+            <option value="" disabled>Επιλέξτε Προμηθευτή</option>
             <option th:each="sup : ${suppliers}" th:value="${sup.id}" th:text="${sup.companyName}"></option>
           </select>
+          <p th:if="${#fields.hasErrors('supplierId')}" th:errors="*{supplierId}" class="text-red-500 text-[10px] mt-1 font-bold"></p>
         </div>
       </div>
 
       <div class="flex gap-3 pt-4">
-        <a th:href="@{/products}" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-600 font-bold text-xs text-center hover:bg-gray-50 transition-colors">
+        <a th:href="@{/products}"
+           class="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-600 font-bold text-xs text-center hover:bg-gray-50 transition-colors">
           Ακύρωση
         </a>
-        <button type="submit" class="flex-1 px-4 py-3 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-teal-700 shadow-md transition-all transform hover:-translate-y-0.5">
+        <button type="submit"
+                class="flex-1 px-4 py-3 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 shadow-md transition-all transform hover:-translate-y-0.5">
           Αποθήκευση
         </button>
       </div>

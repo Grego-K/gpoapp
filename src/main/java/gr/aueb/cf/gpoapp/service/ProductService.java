@@ -237,6 +237,23 @@ public class ProductService implements IProductService {
                 .orElseThrow(() -> new Exception("Το προϊόν με ID " + id + " δεν βρέθηκε"));
     }
 
+    /**
+     * Υλοποίηση της μεθόδου για την ανάκτηση DTO βάσει ID (για το Edit).
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public ProductDTO findProductDTOById(Long id) throws Exception {
+        Product product = productRepository.findByIdWithRelations(id)
+                .orElseThrow(() -> new Exception("Το προϊόν με ID " + id + " δεν βρέθηκε"));
+
+        String currentPeriod = getCurrentPeriodLabel();
+        ProductProgress progress = progressRepository
+                .findByProductIdAndPeriodLabel(product.getId(), currentPeriod)
+                .orElse(null);
+
+        return productMapper.mapToProductDTO(product, progress);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Optional<Product> findProductByProductName(String productName) {
@@ -256,14 +273,14 @@ public class ProductService implements IProductService {
     public Page<ProductDTO> getFilteredProductsDTO(ProductFilters filters) {
         String currentPeriod = getCurrentPeriodLabel();
 
-        // 1. Φέρνουμε τη σελίδα με τα Entities
+        // Φέρνουμε τη σελίδα με τα Entities
         Page<Product> productPage = productRepository.findFiltered(
                 filters.getProductName(),
                 filters.getCategoryId(),
                 filters.getPageable()
         );
 
-        // 2. Μετατρέπουμε κάθε Product σε ProductDTO χρησιμοποιώντας τον Mapper
+        // Μετατρέπουμε κάθε Product σε ProductDTO χρησιμοποιώντας τον Mapper
         return productPage.map(product -> {
             ProductProgress progress = progressRepository
                     .findByProductIdAndPeriodLabel(product.getId(), currentPeriod)

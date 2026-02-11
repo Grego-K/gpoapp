@@ -29,4 +29,6 @@ public interface IProductService {
     Product updateProduct(Long id, ProductDTO productDTO) throws Exception;
 
     void deleteProduct(Long id) throws Exception;
+
+    ProductDTO findProductDTOById(Long id) throws Exception;
 }

@@ -16,6 +16,7 @@ import gr.aueb.cf.gpoapp.mapper.ProductMapper;
 import gr.aueb.cf.gpoapp.repository.ProductProgressRepository;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -35,18 +36,23 @@ public class ProductService implements IProductService {
     /**
      * Επιστρέφει όλα τα προϊόντα converted σε DTOs,
      * εμπλουτισμένα με το volume του τρέχοντος τριμήνου.
+     * Χρησιμοποιεί batch fetching για να αποφύγει το N+1 query problem.
      */
     @Transactional(readOnly = true)
     public List<ProductDTO> findAllProductsForCatalog() {
         String currentPeriod = getCurrentPeriodLabel();
 
+        // Batch fetch: Φέρνουμε όλα τα ProductProgress για το τρέχον τρίμηνο με ένα query
+        List<ProductProgress> allProgress = progressRepository.findAllByPeriodLabel(currentPeriod);
+
+        // Δημιουργούμε Map για O(1) lookup: productId -> ProductProgress
+        Map<Long, ProductProgress> progressMap = allProgress.stream()
+                .collect(Collectors.toMap(p -> p.getProduct().getId(), p -> p));
+
+        // Kάνουμε map χωρίς επιπλέον queries
         return productRepository.findAllWithRelations().stream()
                 .map(product -> {
-                    // Αναζήτηση προόδου για το συγκεκριμένο προϊόν και τρίμηνο
-                    ProductProgress progress = progressRepository
-                            .findByProductIdAndPeriodLabel(product.getId(), currentPeriod)
-                            .orElse(null); // Ο Mapper θα χειριστεί το null ως 0 volume!
-
+                    ProductProgress progress = progressMap.get(product.getId());
                     return productMapper.mapToProductDTO(product, progress);
                 })
                 .collect(Collectors.toList());
@@ -219,8 +225,7 @@ public class ProductService implements IProductService {
         return productRepository.findFiltered(
                 filters.getProductName(),
                 filters.getCategoryId(),
-                filters.getPageable()
-        );
+                filters.getPageable());
     }
 
     @Override
@@ -277,15 +282,16 @@ public class ProductService implements IProductService {
         Page<Product> productPage = productRepository.findFiltered(
                 filters.getProductName(),
                 filters.getCategoryId(),
-                filters.getPageable()
-        );
+                filters.getPageable());
+
+        // Batch fetch όλων των ProductProgress για το τρέχον τρίμηνο
+        List<ProductProgress> allProgress = progressRepository.findAllByPeriodLabel(currentPeriod);
+        Map<Long, ProductProgress> progressMap = allProgress.stream()
+                .collect(Collectors.toMap(p -> p.getProduct().getId(), p -> p));
 
         // Μετατρέπουμε κάθε Product σε ProductDTO χρησιμοποιώντας τον Mapper
         return productPage.map(product -> {
-            ProductProgress progress = progressRepository
-                    .findByProductIdAndPeriodLabel(product.getId(), currentPeriod)
-                    .orElse(null);
-
+            ProductProgress progress = progressMap.get(product.getId());
             return productMapper.mapToProductDTO(product, progress);
         });
     }

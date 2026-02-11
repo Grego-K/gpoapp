@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,5 +22,12 @@ public interface ProductProgressRepository extends JpaRepository<ProductProgress
      * αποφεύγοντας τα πολλαπλά queries (N+1 problem).
      */
     @Query("SELECT pp FROM ProductProgress pp JOIN FETCH pp.product WHERE pp.product.id = :productId AND pp.periodLabel = :periodLabel")
-    Optional<ProductProgress> findByProductAndPeriodWithFetch(@Param("productId") Long productId, @Param("periodLabel") String periodLabel);
+    Optional<ProductProgress> findByProductAndPeriodWithFetch(@Param("productId") Long productId,
+                                                              @Param("periodLabel") String periodLabel);
+
+    /**
+     * Φέρνει όλες τις εγγραφές ProductProgress για μια συγκεκριμένη περίοδο.
+     * Χρησιμοποιείται για batch fetching και αποφυγή του N+1 problem.
+     */
+    List<ProductProgress> findAllByPeriodLabel(String periodLabel);
 }

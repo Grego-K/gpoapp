@@ -19,6 +19,9 @@ public class ProductController {
     private final IProductService productService;
     private final ICategoryService categoryService;
 
+    /**
+     * Εμφάνιση της λίστας προϊόντων (Κοινόχρηστη πρόσβαση).
+     */
     @GetMapping("/products")
     public String listProducts(
             @RequestParam(defaultValue = "0") int page,
@@ -26,7 +29,7 @@ public class ProductController {
             @ModelAttribute("filters") ProductFilters filters,
             Model model) {
 
-        // Ενημερώνουμε τα πεδία φίλτρων για τη σελιδοποίηση
+// Ενημερώνουμε τα πεδία φίλτρων για τη σελιδοποίηση
         filters.setPage(page);
         filters.setPageSize(size);
 
